@@ -4,6 +4,8 @@ A browser-based arithmetic practice application for children ages 7–12, built 
 
 ## Current implementation
 
+Phase 20 adds automated axe accessibility scans and a full keyboard-only addition-session regression. See [TESTING.md](TESTING.md) for coverage, limitations, and the remaining real screen-reader check. Axe runs in jsdom and does not verify rendered contrast or reflow. Vitest is updated to its compatible patched release.
+
 Phase 19 adds category-specific saved-data recovery notices, a reusable error message and page error boundary, explanations when session/summary data is missing, and development-only diagnostics for bounded question-generation retries. Both regular and review generation provide validated fallbacks. Unexpected render failures show a simple recovery screen with Return Home; technical details are kept out of that screen.
 
 - Phases 1–2: React, Vite, TypeScript, shared types, tests, linting, formatting, responsive layout, home page, navigation, and unknown-route fallback.
