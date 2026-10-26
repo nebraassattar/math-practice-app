@@ -4,19 +4,21 @@ import { PracticeSetupPage } from '../pages/PracticeSetupPage'
 import { PracticeSessionPage } from '../pages/PracticeSessionPage'
 import { HomePage } from '../pages/HomePage'
 import { NotFoundPage } from '../pages/NotFoundPage'
-import { StatisticsPage } from '../pages/StatisticsPage'
-import { SettingsPage } from '../pages/SettingsPage'
+import { StatisticsPage, SettingsPage } from './secondaryPages'
+import { Suspense } from 'react'
 
 export function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/practice/setup" element={<PracticeSetupPage />} />
-      <Route path="/practice/session" element={<PracticeSessionPage />} />
-      <Route path="/practice/summary" element={<SessionSummaryPage />} />
-      <Route path="/statistics" element={<StatisticsPage />} />
-      <Route path="/settings" element={<SettingsPage />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+    <Suspense fallback={<p role="status">Loading your page…</p>}>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/practice/setup" element={<PracticeSetupPage />} />
+        <Route path="/practice/session" element={<PracticeSessionPage />} />
+        <Route path="/practice/summary" element={<SessionSummaryPage />} />
+        <Route path="/statistics" element={<StatisticsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </Suspense>
   )
 }

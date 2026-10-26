@@ -42,6 +42,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const saveSettings = useCallback(
     (settings: AppSettings) => {
       if (!isSettings(settings)) return false
+      if (
+        !readOnly.current &&
+        JSON.stringify(settings) === JSON.stringify(current.current.settings)
+      )
+        return true
       return commit({
         ...current.current,
         settings,
@@ -65,7 +70,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const previousSession = existing.sessions.find(
         (item) => item.id === session.id,
       )
-      if (previousSession === session && fresh.length === 0) return
+      if (
+        fresh.length === 0 &&
+        previousSession &&
+        JSON.stringify(previousSession) === JSON.stringify(session)
+      )
+        return
       // Do not let a duplicate mount overwrite a newer saved snapshot of this session.
       const latest =
         previousSession &&

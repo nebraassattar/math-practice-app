@@ -1,5 +1,12 @@
 import '@testing-library/jest-dom/vitest'
-import { beforeEach } from 'vitest'
+import { beforeEach, vi } from 'vitest'
+
+// Existing feature tests exercise real secondary pages without unrelated loading delays.
+// LazyRoutes.test.tsx explicitly unmocks this boundary to test actual code splitting.
+vi.mock('../app/secondaryPages', async () => ({
+  StatisticsPage: (await import('../pages/StatisticsPage')).StatisticsPage,
+  SettingsPage: (await import('../pages/SettingsPage')).SettingsPage,
+}))
 
 beforeEach(() => {
   localStorage.clear()

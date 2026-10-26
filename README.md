@@ -53,7 +53,7 @@ See `specifications.md` for the software specification and `TODO.md` for the imp
 
 ## Requirements and installation
 
-Use Node.js 22.12 or later and npm. Install dependencies with `npm ci`.
+Use Node.js 24.x and npm, matching the Netlify build environment. Install dependencies with `npm ci`. The locked Vite/plugin dependencies require Node 20.19+ or 22.12+, ESLint requires 20.19+, 22.13+, or 24+, and the locked jsdom and Vitest versions also accept Node 24. All locked dependency Node engine ranges were checked against Node 24. Local verification uses Node 24.11.0.
 
 ## Commands
 
@@ -67,6 +67,24 @@ Use Node.js 22.12 or later and npm. Install dependencies with `npm ci`.
 - `npm run preview`: serve the production build locally.
 
 Production hosting must serve `index.html` for application routes so direct links and refreshes work with BrowserRouter.
+
+## Deploying through Netlify
+
+Deployment is prepared, but has not been performed. The root `netlify.toml` configures `npm run build`, publishes `dist`, selects Node 24, and rewrites `/*` to `/index.html` with status 200. Existing built assets are served normally; application routes are handled by React Router. No functions, backend, API keys, or application environment variables are required.
+
+After reviewing and committing/pushing the prepared files to GitHub (a separate step that has not been performed for this configuration):
+
+1. Sign in to [Netlify](https://app.netlify.com/) and select your team.
+2. Choose **Add new project → Import an existing project**, then **GitHub**. Authorize access to the repository if prompted.
+3. Select `nebraassattar/math-practice-app`.
+4. Set the production branch to **main**. Leave the base directory empty (the repository root). Confirm the build command is **npm run build** and the publish directory is **dist**. The checked-in `netlify.toml` supplies these settings and Node 24; remove any conflicting Node version override in the Netlify UI. Leave functions/package-directory overrides unset.
+5. Choose a project name, review the settings, and select **Publish** (or **Deploy**, if shown). In the deploy log, confirm Node 24 is selected and the build succeeds. Wait for the published URL.
+6. Open the HTTPS site and test `/`, `/practice/setup`, `/practice/session`, `/practice/summary`, `/statistics`, `/settings`, and an unknown path. Open each directly and refresh it. Session/summary routes without valid data should show setup with an explanation; an unknown path should show the app fallback, not a Netlify 404.
+7. Complete practice, check Statistics, refresh, and reopen the same site to verify saved history. Check keyboard controls, mobile widths, and the browser console. Localhost, preview URLs, and the production domain have separate browser storage; localhost history will not transfer automatically.
+
+Netlify builds from GitHub, so uncommitted local files are not included. Once Git integration is active, later pushes to `main` normally trigger production builds. See the official [repository deployment guide](https://docs.netlify.com/start/quickstarts/deploy-from-repository/), [file-based configuration](https://docs.netlify.com/build/configure-builds/file-based-configuration/), and [Node dependency configuration](https://docs.netlify.com/build/configure-builds/manage-dependencies/).
+
+The application is not marked complete: real screen-reader testing, the remaining cross-browser/device checks, slower-device performance testing, and live Netlify deployment verification remain pending in `TODO.md`. In-progress performance changes are also uncommitted and require review.
 
 ## Manual checks
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppData } from '../app/dataContext'
 import { accuracy, calculateStatistics } from '../services/statisticsService'
@@ -11,7 +11,10 @@ export function StatisticsPage() {
   const { data, resetStatistics } = useAppData()
   const [confirmReset, setConfirmReset] = useState(false)
   const [message, setMessage] = useState('')
-  const statistics = calculateStatistics(data.attempts)
+  const statistics = useMemo(
+    () => calculateStatistics(data.attempts),
+    [data.attempts],
+  )
   return (
     <section>
       <p className="eyebrow">Every step adds up</p>

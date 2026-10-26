@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useMemo } from 'react'
 import { useAppData } from '../../app/dataContext'
 import { mistakeStatistics } from '../../services/mistakeStatistics'
 import { symbols } from '../../services/questionRules'
@@ -64,7 +65,10 @@ function PatternList({
 
 export function MistakeStatistics() {
   const { data } = useAppData()
-  const statistics = mistakeStatistics(data.mistakePatterns, data.attempts)
+  const statistics = useMemo(
+    () => mistakeStatistics(data.mistakePatterns, data.attempts),
+    [data.mistakePatterns, data.attempts],
+  )
   const active = data.mistakePatterns.filter((pattern) => !pattern.mastered)
   const mastered = data.mistakePatterns.filter((pattern) => pattern.mastered)
   const first = [...active].sort(
