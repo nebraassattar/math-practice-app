@@ -244,3 +244,94 @@ h3 {
     margin-top: 0.5rem;
   }
 }
+
+button,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid #173c9c;
+  outline-offset: 5px;
+}
+.button:disabled {
+  background: #e3e8f2;
+  border-color: #66748a;
+  color: #4b586d;
+  cursor: not-allowed;
+}
+.setup-page {
+  max-width: 960px;
+}
+.setup-group {
+  min-width: 0;
+  margin: 2rem 0;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid #d4e0fa;
+  border-radius: 20px;
+  background: white;
+}
+.setup-group legend {
+  font-weight: 750;
+  font-size: 1.3rem;
+  padding-inline: 0.4rem;
+}
+.setup-group p {
+  margin-top: 0;
+}
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  padding: 1rem;
+  min-height: 56px;
+  border: 2px solid #bcc9df;
+  border-radius: 12px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.choice:hover {
+  background: #f1f5ff;
+}
+.choice:has(input:checked) {
+  border-color: #3e52b5;
+  background: #e9efff;
+}
+.choice:has(input:focus-visible) {
+  outline: 3px solid #173c9c;
+  outline-offset: 3px;
+}
+.choice input {
+  flex-shrink: 0;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0.2rem 0 0;
+  accent-color: #3e52b5;
+}
+.choice-description {
+  display: block;
+  font-size: 0.9rem;
+  margin-top: 0.4rem;
+}
+.configuration-summary dt {
+  font-weight: 750;
+  margin-top: 1rem;
+}
+.configuration-summary dd {
+  margin-left: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .choice-grid {
+    grid-template-columns: 1fr;
+  }
+}

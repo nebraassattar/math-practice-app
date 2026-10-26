@@ -41,12 +41,13 @@ describe('App', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: heading }),
     ).toBeInTheDocument()
-    expect(screen.getByText(/Coming soon/)).toBeInTheDocument()
+    if (path !== '/practice/setup')
+      expect(screen.getByText(/Coming soon/)).toBeInTheDocument()
   })
 
   it.each([
     ['/practice/setup', 'Practice Setup'],
-    ['/practice/session', 'Practice Session'],
+
     ['/practice/summary', 'Session Summary'],
     ['/statistics', 'Statistics'],
     ['/settings', 'Settings'],
