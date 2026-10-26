@@ -559,25 +559,21 @@ Questions involving remainders may be added in a future version.
 Each generated question should have a structure similar to:
 
 ```ts
-type MathOperation =
-  | "addition"
-  | "subtraction"
-  | "multiplication"
-  | "division";
+type MathOperation = 'addition' | 'subtraction' | 'multiplication' | 'division'
 
-type DifficultyLevel = 1 | 2 | 3 | 4;
+type DifficultyLevel = 1 | 2 | 3 | 4
 
 interface Question {
-  id: string;
-  operation: MathOperation;
-  firstOperand: number;
-  secondOperand: number;
-  displayText: string;
-  correctAnswer: number;
-  choices: number[];
-  difficulty: DifficultyLevel;
-  source: "regular" | "mistake-review";
-  mistakePatternId?: string;
+  id: string
+  operation: MathOperation
+  firstOperand: number
+  secondOperand: number
+  displayText: string
+  correctAnswer: number
+  choices: number[]
+  difficulty: DifficultyLevel
+  source: 'regular' | 'mistake-review'
+  mistakePatternId?: string
 }
 ```
 
@@ -661,18 +657,18 @@ Division by zero must never be generated.
 
 ```ts
 interface PracticeAttempt {
-  id: string;
-  questionId: string;
-  operation: MathOperation;
-  firstOperand: number;
-  secondOperand: number;
-  correctAnswer: number;
-  selectedAnswer: number;
-  selfReportedCorrect: boolean;
-  difficulty: DifficultyLevel;
-  source: "regular" | "mistake-review";
-  attemptedAt: string;
-  sessionId: string;
+  id: string
+  questionId: string
+  operation: MathOperation
+  firstOperand: number
+  secondOperand: number
+  correctAnswer: number
+  selectedAnswer: number
+  selfReportedCorrect: boolean
+  difficulty: DifficultyLevel
+  source: 'regular' | 'mistake-review'
+  attemptedAt: string
+  sessionId: string
 }
 ```
 
@@ -680,15 +676,15 @@ interface PracticeAttempt {
 
 ```ts
 interface PracticeSession {
-  id: string;
-  startedAt: string;
-  completedAt?: string;
-  operations: MathOperation[];
-  difficulty: DifficultyLevel;
-  sessionLength: number | "continuous";
-  attempted: number;
-  correct: number;
-  incorrect: number;
+  id: string
+  startedAt: string
+  completedAt?: string
+  operations: MathOperation[]
+  difficulty: DifficultyLevel
+  sessionLength: number | 'continuous'
+  attempted: number
+  correct: number
+  incorrect: number
 }
 ```
 
@@ -696,16 +692,16 @@ interface PracticeSession {
 
 ```ts
 interface MistakePattern {
-  id: string;
-  operation: MathOperation;
-  firstOperand: number;
-  secondOperand: number;
-  correctAnswer: number;
-  difficulty: DifficultyLevel;
-  incorrectCount: number;
-  similarCorrectCount: number;
-  lastIncorrectAt: string;
-  mastered: boolean;
+  id: string
+  operation: MathOperation
+  firstOperand: number
+  secondOperand: number
+  correctAnswer: number
+  difficulty: DifficultyLevel
+  incorrectCount: number
+  similarCorrectCount: number
+  lastIncorrectAt: string
+  mastered: boolean
 }
 ```
 
@@ -713,17 +709,17 @@ interface MistakePattern {
 
 ```ts
 interface OperationStatistics {
-  attempted: number;
-  correct: number;
-  incorrect: number;
+  attempted: number
+  correct: number
+  incorrect: number
 }
 
 interface AppStatistics {
-  attempted: number;
-  correct: number;
-  incorrect: number;
-  byOperation: Record<MathOperation, OperationStatistics>;
-  byDifficulty: Record<DifficultyLevel, OperationStatistics>;
+  attempted: number
+  correct: number
+  incorrect: number
+  byOperation: Record<MathOperation, OperationStatistics>
+  byDifficulty: Record<DifficultyLevel, OperationStatistics>
 }
 ```
 
@@ -770,15 +766,15 @@ Suggested global state:
 
 ```ts
 interface AppState {
-  settings: AppSettings;
-  currentSession: PracticeSession | null;
-  currentQuestion: Question | null;
-  currentQuestionIndex: number;
-  selectedAnswer: number | null;
-  isCardFlipped: boolean;
-  attempts: PracticeAttempt[];
-  mistakePatterns: MistakePattern[];
-  statistics: AppStatistics;
+  settings: AppSettings
+  currentSession: PracticeSession | null
+  currentQuestion: Question | null
+  currentQuestionIndex: number
+  selectedAnswer: number | null
+  isCardFlipped: boolean
+  attempts: PracticeAttempt[]
+  mistakePatterns: MistakePattern[]
+  statistics: AppStatistics
 }
 ```
 
@@ -1021,8 +1017,8 @@ Suggested function:
 ```ts
 function generateQuestion(
   operation: MathOperation,
-  difficulty: DifficultyLevel
-): Question;
+  difficulty: DifficultyLevel,
+): Question
 ```
 
 ## 20.2 Similar Question Generator
@@ -1038,9 +1034,7 @@ Responsibilities:
 Suggested function:
 
 ```ts
-function generateSimilarQuestion(
-  pattern: MistakePattern
-): Question;
+function generateSimilarQuestion(pattern: MistakePattern): Question
 ```
 
 ## 20.3 Statistics Service
