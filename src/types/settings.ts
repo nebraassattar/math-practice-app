@@ -2,12 +2,13 @@ import type { DifficultyLevel, MathOperation, Question } from './question.ts'
 import type { MistakePattern } from './mistake.ts'
 import type { PracticeAttempt, PracticeSession } from './session.ts'
 import type { AppStatistics } from './statistics.ts'
+import type { SessionLength } from './practiceConfiguration'
 
 export interface AppSettings {
   soundEffectsEnabled: boolean
   cardAnimationEnabled: boolean
   showExplanations: boolean
-  defaultSessionLength: number | 'continuous'
+  defaultSessionLength: SessionLength
   defaultDifficulty: DifficultyLevel
   defaultOperations: MathOperation[]
   masteryThreshold: number

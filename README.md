@@ -1,23 +1,36 @@
 # Math Practice App
 
-A browser-based arithmetic practice application being built in phases for children ages 7–12. No account or backend is required.
+A browser-based arithmetic practice application for children ages 7–12, built one milestone at a time. No account or backend is required.
 
 ## Current implementation
 
 - Phases 1–2: React, Vite, TypeScript, shared types, tests, linting, formatting, responsive layout, home page, navigation, and unknown-route fallback.
-- Phase 3: operation, difficulty, and session-length configuration with validation.
-- Phases 4–5: all four arithmetic generators, four difficulty levels, and four unique shuffled answer choices with operation-specific distractors.
-- Phases 6–8: answer selection, card reveal, self-reported results, fixed and continuous sessions, accessible progress, early ending with confirmation, and session summaries. Practice Again starts a fresh session with the same configuration; Change Settings returns to practice setup.
-- Card animations can be turned off during practice and respect reduced-motion preferences.
-- Completed attempts, totals, session IDs, and timestamps are held in memory for the current run. No practice history or application preferences are written to browser storage.
+- Phase 3: validated practice setup for operations, difficulty, and session length.
+- Phases 4–5: four arithmetic generators, four difficulty levels, and four unique shuffled answer choices with operation-specific distractors.
+- Phases 6–8: question cards, self-reported results, fixed/continuous practice, progress, early ending, and session summaries.
+- Phase 9: versioned browser storage for settings, sessions, and attempts. Completed answers are saved as results are recorded, including during unfinished sessions.
+- Phase 10: overall, operation, and difficulty statistics; up to 100 recent sessions; empty states; and confirmed statistics reset that preserves settings.
+- Phase 11: saved sound, animation, explanation, and default practice preferences; session-specific setup changes; and confirmed Clear All Application Data.
 
-Routes: `/`, `/practice/setup`, `/practice/session`, `/practice/summary`, `/statistics`, and `/settings`. Session and summary pages return to setup when required route data is missing or invalid. Statistics and settings are still placeholders.
+Routes: `/`, `/practice/setup`, `/practice/session`, `/practice/summary`, `/statistics`, and `/settings`. Session and summary routes return to setup when required route data is missing or invalid.
+
+## Storage behavior and privacy
+
+- Settings, sessions, and attempts share one version-1 JSON document at `mathPractice.data`. Saving a result updates the session and attempt in the same localStorage write. Attempts are deduplicated by ID.
+- Overall and grouped statistics are calculated from saved attempts, rather than stored as a second aggregate that could become out of sync. All lifetime attempts are kept; recent session detail is limited to 100 sessions, newest first.
+- Missing or version-0 envelopes using the initial category structure are normalized to version 1 and written in that format on the next save. Unknown future schemas are protected from automatic overwrites.
+- Loaded records are validated. Invalid settings recover to defaults; malformed/duplicate history records are filtered while valid records are retained. A warning explains recovery.
+- Blocked storage, capacity errors, and JSON errors do not crash practice. New changes stay available in memory when writes fail, and a visible warning explains that they were not saved. Failed statistics resets preserve existing saved history and report failure.
+- Reset Statistics clears the history used for totals, grouped statistics, and recent sessions, keeping settings unchanged. Clear All Application Data removes the app's document and its specifically named legacy/reserved keys, including mistake patterns, restores defaults, and returns home. Unrelated browser keys are untouched.
+- No practice history is sent to a server. Data belongs to the current browser profile and origin; changing the local server port uses separate storage. Clearing browser data removes saved progress.
+
+Default practice choices are Addition, Beginner, and 10 questions. Sound is initially off; animations and explanations are on. Settings are saved with Save Settings. The in-session animation checkbox also saves the animation preference. Reduced-motion preferences always disable card animations.
 
 ## Planned features
 
-Browser-storage persistence, saved statistics and settings, mistake tracking, personalized review, and mastery are not implemented. Practice Mistakes is shown disabled on the summary with an explanation. Navigation safety and restoring an active session after refresh come in later phases. Refreshing or leaving a session can lose in-progress attempts; route configuration alone is not a saved session.
+Mistake tracking, personalized review, mastery, navigation safety, and restoring the current question after refresh are not implemented. Practice Mistakes remains disabled with an explanation. Completed answers are preserved, but refreshing the practice page starts a fresh run rather than resuming the current card.
 
-See `specifications.md` for the software specification and `TODO.md` for the phased implementation checklist.
+See `specifications.md` for the software specification and `TODO.md` for the implementation checklist.
 
 ## Requirements and installation
 
@@ -38,14 +51,14 @@ Production hosting must serve `index.html` for application routes so direct link
 
 ## Manual checks
 
-1. Follow the home links and check unknown-route recovery, Back/Forward, visible keyboard focus, and Skip to content.
-2. Configure mixed operations, difficulty, and length. Confirm Start Session requires operations and difficulty and defaults to 10 questions.
-3. Start a 5-question session. Confirm Flip Card is disabled until selection, answers can change before revealing, and revealed choices cannot change. Record both right and wrong self-reports and verify progress and the summary totals.
-4. Check that the fifth self-report opens the summary. Confirm accuracy, operation/difficulty labels, zero review questions, and all available summary actions. Practice Again should start at question 1; Practice Mistakes should remain disabled with an explanation.
-5. Try continuous practice: no fixed progress bar, more questions keep appearing, and End Session opens confirmation. Cancel should keep your current card; confirming should summarize only completed attempts, including zero attempts if you end immediately.
-6. Toggle card animation off, and test reduced-motion system preferences. The answer should still appear immediately and stay readable.
-7. Check Tab/Shift+Tab and Enter/Space throughout the card flow. New questions and revealed answers receive focus. Resize to 320px, tablet, and desktop widths and check at 200% zoom for overlapping text or horizontal scrolling.
-8. Open session and summary routes directly in a new tab with no route data. Both should return to setup.
+1. Save different operations, difficulty, and session length in Settings. Refresh, visit practice setup, and confirm saved defaults load. Individual setup changes should not overwrite those defaults.
+2. Complete a five-question session with both right and wrong self-reports. Visit Statistics and check totals, accuracy, each operation/difficulty card, and the recent session. Refresh and reopen the app tab; results should remain.
+3. Fully quit and reopen the browser, then return to the same app origin and port. Confirm attempts and settings remain. The full browser-process restart check was confirmed during user review; reload and closing/reopening the app tab were also verified.
+4. Test sound on/off, animations on/off, explanations on/off, and reduced-motion preferences. Sound is a short neutral tone when revealing an answer; a browser without audio support should still allow practice.
+5. Open Reset Statistics, cancel, and check history remains. On disposable test data, confirm the reset, then verify zero totals, empty recent sessions, and unchanged settings. Test Clear All Application Data separately: after explicit confirmation it should restore defaults and return home.
+6. Use Tab/Shift+Tab and Enter/Space; confirmation dialogs initially focus Cancel, trap focus using native modal behavior, dismiss with Escape, and restore focus. Check 320px/mobile, tablet, and desktop widths and 200% zoom for overlap or horizontal scrolling.
+7. Try continuous practice and cancel/confirm End Session. Only completed attempts should count, including a zero-attempt session if you finish immediately. Refreshing mid-session preserves recorded attempts but does not restore the current card.
+8. Check the home links, Back/Forward, unknown-route recovery, visible focus, and Skip to content. Direct session/summary URLs without route data should return to setup.
 
 ## Question generator decisions (Phases 4–5)
 

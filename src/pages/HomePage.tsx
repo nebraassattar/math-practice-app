@@ -43,8 +43,7 @@ export function HomePage() {
           </div>
         </div>
         <p className="development-note">
-          Ready to practice? Progress tracking and saved preferences are coming
-          in later updates.
+          Your progress and preferences stay in this browser. No account needed.
         </p>
       </section>
     </>

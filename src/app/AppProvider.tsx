@@ -1,0 +1,102 @@
+import { useCallback, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
+import { DataContext } from './dataContext'
+import type { AppSettings } from '../types/settings'
+import type { PracticeAttempt, PracticeSession } from '../types/session'
+import {
+  clearApplicationStorage,
+  emptyData,
+  isSettings,
+  loadData,
+  RECENT_SESSION_LIMIT,
+  saveData,
+} from '../services/storageService'
+import type { StoredData } from '../services/storageService'
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [loaded] = useState(() => loadData())
+  const [data, setData] = useState(loaded.data)
+  const current = useRef(loaded.data)
+  const readOnly = useRef(loaded.readOnly)
+  const [warning, setWarning] = useState(loaded.warning)
+  const commit = useCallback((next: StoredData, mustSave = false) => {
+    const error = readOnly.current
+      ? 'A newer saved-data version is protected. Changes in this visit cannot be saved.'
+      : saveData(next)
+    if (error && mustSave) {
+      setWarning(
+        'Saved practice history could not be erased. No reset was applied. Check browser storage and try again.',
+      )
+      return false
+    }
+    setWarning(error)
+    current.current = next
+    setData(next)
+    return error === null
+  }, [])
+  const saveSettings = useCallback(
+    (settings: AppSettings) => {
+      if (!isSettings(settings)) return false
+      return commit({ ...current.current, settings })
+    },
+    [commit],
+  )
+  const saveProgress = useCallback(
+    (session: PracticeSession, attempts: PracticeAttempt[] = []) => {
+      const existing = current.current
+      const knownIds = new Set(existing.attempts.map((attempt) => attempt.id))
+      const fresh = attempts.filter((attempt) => !knownIds.has(attempt.id))
+      const previousSession = existing.sessions.find(
+        (item) => item.id === session.id,
+      )
+      if (previousSession === session && fresh.length === 0) return
+      // Do not let a duplicate mount overwrite a newer saved snapshot of this session.
+      const latest =
+        previousSession &&
+        (previousSession.attempted > session.attempted ||
+          (previousSession.completedAt && !session.completedAt))
+          ? previousSession
+          : session
+      const sessions = [
+        latest,
+        ...existing.sessions.filter((item) => item.id !== session.id),
+      ]
+        .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
+        .slice(0, RECENT_SESSION_LIMIT)
+      commit({
+        ...existing,
+        sessions,
+        attempts: [...existing.attempts, ...fresh],
+      })
+    },
+    [commit],
+  )
+  const resetStatistics = useCallback(
+    () => commit({ ...current.current, sessions: [], attempts: [] }, true),
+    [commit],
+  )
+  const clearAllData = useCallback(() => {
+    const error = clearApplicationStorage()
+    setWarning(error)
+    if (error) return false
+    readOnly.current = false
+    const defaults = emptyData()
+    current.current = defaults
+    setData(defaults)
+    return true
+  }, [])
+  return (
+    <DataContext.Provider
+      value={{
+        data,
+        warning,
+        saveSettings,
+        saveProgress,
+        resetStatistics,
+        clearAllData,
+      }}
+    >
+      {children}
+    </DataContext.Provider>
+  )
+}

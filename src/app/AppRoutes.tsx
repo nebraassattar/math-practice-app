@@ -4,7 +4,8 @@ import { PracticeSetupPage } from '../pages/PracticeSetupPage'
 import { PracticeSessionPage } from '../pages/PracticeSessionPage'
 import { HomePage } from '../pages/HomePage'
 import { NotFoundPage } from '../pages/NotFoundPage'
-import { PlaceholderPage } from '../pages/PlaceholderPage'
+import { StatisticsPage } from '../pages/StatisticsPage'
+import { SettingsPage } from '../pages/SettingsPage'
 
 export function AppRoutes() {
   return (
@@ -13,24 +14,8 @@ export function AppRoutes() {
       <Route path="/practice/setup" element={<PracticeSetupPage />} />
       <Route path="/practice/session" element={<PracticeSessionPage />} />
       <Route path="/practice/summary" element={<SessionSummaryPage />} />
-      <Route
-        path="/statistics"
-        element={
-          <PlaceholderPage
-            title="Statistics"
-            description="Your practice history and progress will appear here."
-          />
-        }
-      />
-      <Route
-        path="/settings"
-        element={
-          <PlaceholderPage
-            title="Settings"
-            description="You'll choose your practice preferences here."
-          />
-        }
-      />
+      <Route path="/statistics" element={<StatisticsPage />} />
+      <Route path="/settings" element={<SettingsPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )

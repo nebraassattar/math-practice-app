@@ -98,8 +98,8 @@ export function SessionSummaryPage() {
         later phase.
       </p>
       <p className="development-note">
-        Results are not saved after this visit. Statistics and app settings are
-        coming later.
+        Your practice history is saved in this browser. Clearing browser data
+        removes saved progress.
       </p>
     </section>
   )

@@ -7,11 +7,19 @@ import { SessionLengthSelector } from '../components/practice/SessionLengthSelec
 import type { DifficultyLevel, MathOperation } from '../types/question'
 import type { SessionLength } from '../types/practiceConfiguration'
 import { isPracticeConfiguration } from '../utils/practiceConfiguration'
+import { useAppData } from '../app/dataContext'
 
 export function PracticeSetupPage() {
-  const [operations, setOperations] = useState<MathOperation[]>([])
-  const [difficulty, setDifficulty] = useState<DifficultyLevel | null>(null)
-  const [sessionLength, setSessionLength] = useState<SessionLength>(10)
+  const { data } = useAppData()
+  const [operations, setOperations] = useState<MathOperation[]>(() => [
+    ...data.settings.defaultOperations,
+  ])
+  const [difficulty, setDifficulty] = useState<DifficultyLevel | null>(
+    data.settings.defaultDifficulty,
+  )
+  const [sessionLength, setSessionLength] = useState<SessionLength>(
+    data.settings.defaultSessionLength,
+  )
   const navigate = useNavigate()
   const configuration = { operations, difficulty, sessionLength }
   const valid = isPracticeConfiguration(configuration)

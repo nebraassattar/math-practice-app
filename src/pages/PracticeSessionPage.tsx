@@ -1,4 +1,5 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useAppData } from '../app/dataContext'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import type { PracticeConfiguration } from '../types/practiceConfiguration'
 import {
@@ -20,9 +21,14 @@ function ActivePractice({
 }: {
   configuration: PracticeConfiguration
 }) {
+  const { data, saveProgress, saveSettings } = useAppData()
   const [run, setRun] = useState(() => createPracticeRun(configuration))
   const currentRun = useRef(run)
-  const [animationEnabled, setAnimationEnabled] = useState(true)
+  const animationEnabled = data.settings.cardAnimationEnabled
+  const initialSession = useRef(run.session)
+  useEffect(() => {
+    saveProgress(initialSession.current)
+  }, [saveProgress])
   const navigate = useNavigate()
 
   function record(
@@ -39,6 +45,7 @@ function ActivePractice({
     if (updated === currentRun.current) return
     currentRun.current = updated
     setRun(updated)
+    saveProgress(updated.session, updated.attempts)
     if (!updated.isActive)
       navigate('/practice/summary', {
         state: toSessionResult(updated),
@@ -56,6 +63,7 @@ function ActivePractice({
     const completed = finishRun(currentRun.current)
     currentRun.current = completed
     setRun(completed)
+    saveProgress(completed.session, completed.attempts)
     navigate('/practice/summary', {
       state: toSessionResult(completed),
       replace: true,
@@ -103,13 +111,20 @@ function ActivePractice({
         question={run.question}
         onResult={record}
         animationEnabled={animationEnabled}
+        showExplanations={data.settings.showExplanations}
+        soundEnabled={data.settings.soundEffectsEnabled}
       />
       <div className="session-controls">
         <label>
           <input
             type="checkbox"
             checked={animationEnabled}
-            onChange={(event) => setAnimationEnabled(event.target.checked)}
+            onChange={(event) =>
+              saveSettings({
+                ...data.settings,
+                cardAnimationEnabled: event.target.checked,
+              })
+            }
           />{' '}
           Animate card flips
         </label>
@@ -118,7 +133,8 @@ function ActivePractice({
         </button>
       </div>
       <p className="development-note">
-        Results are kept only for this visit. Practice history is not saved yet.
+        Completed answers are saved in this browser. Your current question is
+        not restored after a refresh yet.
       </p>
     </section>
   )

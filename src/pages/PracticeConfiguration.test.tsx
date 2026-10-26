@@ -23,22 +23,21 @@ function renderSetup(path = '/practice/setup', state: unknown = null) {
 const start = () => screen.getByRole('button', { name: 'Start Session' })
 
 describe('Practice configuration', () => {
-  it('requires operations and difficulty and defaults to ten questions', async () => {
+  it('loads sensible defaults and requires at least one operation', async () => {
     const user = userEvent.setup()
     renderSetup()
-    expect(start()).toBeDisabled()
-    expect(screen.getByRole('status')).toHaveTextContent(
-      'Choose at least one operation and a difficulty level',
-    )
+    expect(start()).toBeEnabled()
+    expect(screen.getByRole('checkbox', { name: 'Addition' })).toBeChecked()
+    expect(screen.getByRole('radio', { name: /^Beginner/ })).toBeChecked()
     expect(screen.getByRole('radio', { name: '10 questions' })).toBeChecked()
     await user.click(screen.getByRole('checkbox', { name: 'Addition' }))
     expect(start()).toBeDisabled()
     expect(screen.getByRole('status')).toHaveTextContent(
-      'Choose a difficulty level',
+      'Choose at least one operation',
     )
-    await user.click(screen.getByRole('radio', { name: /^Beginner/ }))
+    await user.click(screen.getByRole('checkbox', { name: 'Division' }))
     expect(start()).toBeEnabled()
-    await user.click(screen.getByRole('checkbox', { name: 'Addition' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Division' }))
     expect(start()).toBeDisabled()
     expect(screen.getByRole('status')).toHaveTextContent(
       'Choose at least one operation',
@@ -54,7 +53,6 @@ describe('Practice configuration', () => {
     const multiplication = screen.getByRole('checkbox', {
       name: 'Multiplication',
     })
-    await user.click(addition)
     await user.click(multiplication)
     expect(addition).toBeChecked()
     expect(multiplication).toBeChecked()
@@ -76,6 +74,7 @@ describe('Practice configuration', () => {
   it('allows exactly one difficulty and length, then hands off the chosen configuration', async () => {
     const user = userEvent.setup()
     renderSetup()
+    await user.click(screen.getByRole('checkbox', { name: 'Addition' }))
     await user.click(screen.getByRole('checkbox', { name: 'Subtraction' }))
     await user.click(screen.getByRole('checkbox', { name: 'Division' }))
     for (const level of ['Beginner', 'Easy', 'Intermediate', 'Advanced']) {
@@ -125,7 +124,7 @@ describe('Practice configuration', () => {
     async (length) => {
       const user = userEvent.setup()
       renderSetup()
-      await user.click(screen.getByRole('checkbox', { name: 'Addition' }))
+      expect(screen.getByRole('checkbox', { name: 'Addition' })).toBeChecked()
       await user.click(screen.getByRole('radio', { name: /^Beginner/ }))
       await user.click(
         screen.getByRole('radio', { name: `${length} questions` }),
@@ -141,6 +140,7 @@ describe('Practice configuration', () => {
   it('supports checkbox, radio, and submit keyboard interaction', async () => {
     const user = userEvent.setup()
     renderSetup()
+    await user.click(screen.getByRole('checkbox', { name: 'Addition' }))
     screen.getByRole('checkbox', { name: 'Addition' }).focus()
     await user.keyboard(' ')
     expect(screen.getByRole('checkbox', { name: 'Addition' })).toBeChecked()
@@ -174,6 +174,6 @@ describe('Practice configuration', () => {
     expect(
       screen.getByRole('heading', { name: 'Practice Setup' }),
     ).toBeInTheDocument()
-    expect(start()).toBeDisabled()
+    expect(start()).toBeEnabled()
   })
 })
