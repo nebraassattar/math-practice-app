@@ -7,6 +7,7 @@ import { createId } from '../utils/ids'
 import { randomInt } from '../utils/math'
 import type { RandomSource } from '../utils/math'
 import { generateAnswerChoices } from './answerChoices'
+import { reportDevelopmentError } from '../utils/developmentErrors'
 import {
   calculate,
   divisionMaximum,
@@ -140,11 +141,25 @@ export function generateQuestion(
       chosen = selected[randomInt(0, selected.length - 1, random)]
       const question = generators[chosen](difficulty, random)
       if (isValidGeneratedQuestion(question)) return question
-    } catch {
-      // Retry a failed random source or invalid generated result a bounded number of times.
+      reportDevelopmentError('Generated question failed validation.', {
+        chosen,
+        difficulty,
+        attempt: attempt + 1,
+      })
+    } catch (error) {
+      reportDevelopmentError('Question generation failed; retrying.', {
+        chosen,
+        difficulty,
+        attempt: attempt + 1,
+        error,
+      })
     }
   }
   const first = chosen === 'multiplication' && difficulty === 4 ? 10 : 1
+  reportDevelopmentError(
+    'Question retries exhausted; using a validated fallback.',
+    { chosen, difficulty },
+  )
   const fallback = makeQuestion(chosen, difficulty, first, 1, () => 0.5)
   if (!isValidGeneratedQuestion(fallback))
     throw new Error('Unable to generate a valid arithmetic question.')

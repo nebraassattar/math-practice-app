@@ -4,6 +4,8 @@ import { AppRoutes } from './AppRoutes'
 import { AppProvider } from './AppProvider'
 import { useAppData } from './dataContext'
 import { RouteAccessibility } from './RouteAccessibility'
+import { ErrorBoundary } from '../components/common/ErrorBoundary'
+import { useLocation } from 'react-router-dom'
 
 function StorageNotice() {
   const { warning } = useAppData()
@@ -14,7 +16,7 @@ function StorageNotice() {
   ) : null
 }
 
-function App() {
+function AppContent() {
   return (
     <AppProvider>
       <a className="skip-link" href="#main-content">
@@ -27,6 +29,15 @@ function App() {
         <AppRoutes />
       </PageContainer>
     </AppProvider>
+  )
+}
+
+function App() {
+  const { key } = useLocation()
+  return (
+    <ErrorBoundary resetKey={key}>
+      <AppContent />
+    </ErrorBoundary>
   )
 }
 

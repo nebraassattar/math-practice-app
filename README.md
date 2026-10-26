@@ -4,6 +4,8 @@ A browser-based arithmetic practice application for children ages 7–12, built 
 
 ## Current implementation
 
+Phase 19 adds category-specific saved-data recovery notices, a reusable error message and page error boundary, explanations when session/summary data is missing, and development-only diagnostics for bounded question-generation retries. Both regular and review generation provide validated fallbacks. Unexpected render failures show a simple recovery screen with Return Home; technical details are kept out of that screen.
+
 - Phases 1–2: React, Vite, TypeScript, shared types, tests, linting, formatting, responsive layout, home page, navigation, and unknown-route fallback.
 - Phase 3: validated practice setup for operations, difficulty, and session length.
 - Phases 4–5: four arithmetic generators, four difficulty levels, and four unique shuffled answer choices with operation-specific distractors.
@@ -65,6 +67,8 @@ Use Node.js 22.12 or later and npm. Install dependencies with `npm ci`.
 Production hosting must serve `index.html` for application routes so direct links and refreshes work with BrowserRouter.
 
 ## Manual checks
+
+For Phase 19, open `/practice/session` in a fresh tab without an active recovery snapshot, then open `/practice/summary` without result state. Both should return to setup with an explanation and a working Return Home link. Start a normal session afterward to confirm practice still works. Automated tests simulate damaged storage, unexpected page errors, and generation failures; there is no need to damage your saved history to review these cases. Valid stored categories and valid records are retained when another category contains invalid data; loading alone does not overwrite the original stored document.
 
 1. Save different operations, difficulty, and session length in Settings. Refresh, visit practice setup, and confirm saved defaults load. Individual setup changes should not overwrite those defaults.
 2. Complete a five-question session with both right and wrong self-reports. Visit Statistics and check totals, accuracy, each operation/difficulty card, and the recent session. Refresh and reopen the app tab; results should remain.

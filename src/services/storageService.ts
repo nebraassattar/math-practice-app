@@ -178,37 +178,46 @@ export function loadData(storage?: StorageAccess): LoadResult {
           'This practice data comes from a newer app version. It will be left untouched; changes in this visit will not be saved.',
         readOnly: true,
       }
-    let repaired = false
+    const repaired = new Set<string>()
     const settings = isSettings(parsed.settings)
       ? { ...defaultSettings(), ...parsed.settings }
-      : ((repaired = true), defaults.settings)
+      : (repaired.add('settings'), defaults.settings)
     function records<T>(
       value: unknown,
       validate: (item: unknown) => item is T,
+      category: string,
     ): T[] {
       if (!Array.isArray(value)) {
-        repaired = true
+        repaired.add(category)
         return []
       }
       const seen = new Set<string>()
       return Array.from(value).filter((item): item is T => {
         if (!validate(item)) {
-          repaired = true
+          repaired.add(category)
           return false
         }
         const identifier = (item as T & { id: string }).id
         if (seen.has(identifier)) {
-          repaired = true
+          repaired.add(category)
           return false
         }
         seen.add(identifier)
         return true
       })
     }
-    const sessions = records(parsed.sessions, isStoredSession)
+    const sessions = records(
+      parsed.sessions,
+      isStoredSession,
+      'recent sessions',
+    )
       .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
       .slice(0, RECENT_SESSION_LIMIT)
-    const attempts = records(parsed.attempts, isStoredAttempt)
+    const attempts = records(
+      parsed.attempts,
+      isStoredAttempt,
+      'practice answers',
+    )
     let mistakePatterns: MistakePattern[]
     if (parsed.version !== 2) {
       // Version 2 adds mistake patterns, seeded from the existing regular practice history.
@@ -224,10 +233,11 @@ export function loadData(storage?: StorageAccess): LoadResult {
       mistakePatterns = records(
         parsed.mistakePatterns,
         isMistakePattern,
+        'mistake patterns',
       ).filter((pattern) => {
         const key = patternKey(pattern)
         if (keys.has(key)) {
-          repaired = true
+          repaired.add('mistake patterns')
           return false
         }
         keys.add(key)
@@ -240,9 +250,10 @@ export function loadData(storage?: StorageAccess): LoadResult {
     )
     return {
       data: { version: 2, settings, sessions, attempts, mistakePatterns },
-      warning: repaired
-        ? 'Some saved records were invalid. Valid history was kept and invalid settings were restored to defaults.'
-        : null,
+      warning:
+        repaired.size > 0
+          ? `Some saved ${[...repaired].join(', ')} were invalid and could not be used. Valid records were kept.${repaired.has('settings') ? ' Practice settings were restored to defaults.' : ''}`
+          : null,
       readOnly: false,
     }
   } catch {

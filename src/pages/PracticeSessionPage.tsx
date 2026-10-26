@@ -256,7 +256,11 @@ function AdmittedPractice({
   return available ? (
     <ActivePractice configuration={configuration} restored={restored} />
   ) : (
-    <Navigate to="/practice/setup" replace />
+    <Navigate
+      to="/practice/setup"
+      replace
+      state={{ notice: 'review-unavailable' }}
+    />
   )
 }
 
@@ -276,7 +280,13 @@ export function PracticeSessionPage() {
   })
   const configuration = restored?.run.configuration ?? state
   if (!isPracticeConfiguration(configuration))
-    return <Navigate to="/practice/setup" replace />
+    return (
+      <Navigate
+        to="/practice/setup"
+        replace
+        state={{ notice: 'missing-session' }}
+      />
+    )
   return (
     <AdmittedPractice
       key={key}

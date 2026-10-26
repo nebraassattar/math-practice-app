@@ -5,6 +5,7 @@ import { randomInt } from '../utils/math'
 import { makeQuestion } from './questionGenerator'
 import { isValidArithmetic, isValidGeneratedQuestion } from './questionRules'
 import { isMistakePattern } from './mistakeService'
+import { reportDevelopmentError } from '../utils/developmentErrors'
 
 export type SimilarityStrategy = 'nearby' | 'reversed' | 'fact-family'
 interface Candidate {
@@ -138,17 +139,37 @@ export function generateSimilarQuestion(
     )
   if (candidates.length === 0)
     throw new Error('No related question matches these practice choices.')
-  const selected =
-    candidates[randomInt(0, candidates.length - 1, random)].question
-  // Choices are shuffled again with the session random source, not the deterministic validation stream.
-  return {
-    ...selected,
-    choices: makeQuestion(
-      selected.operation,
-      selected.difficulty,
-      selected.firstOperand,
-      selected.secondOperand,
-      random,
-    ).choices,
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const selected =
+        candidates[randomInt(0, candidates.length - 1, random)].question
+      const question = {
+        ...selected,
+        choices: makeQuestion(
+          selected.operation,
+          selected.difficulty,
+          selected.firstOperand,
+          selected.secondOperand,
+          random,
+        ).choices,
+      }
+      if (isValidGeneratedQuestion(question)) return question
+      reportDevelopmentError('Review question failed validation.', {
+        attempt: attempt + 1,
+      })
+    } catch (error) {
+      reportDevelopmentError('Review question generation failed; retrying.', {
+        attempt: attempt + 1,
+        error,
+      })
+    }
   }
+  // Candidate construction already uses a deterministic source and validates the entire question.
+  const fallback = candidates[0].question
+  reportDevelopmentError(
+    'Review retries exhausted; using a validated related question.',
+  )
+  if (!isValidGeneratedQuestion(fallback))
+    throw new Error('Unable to generate a valid related question.')
+  return fallback
 }

@@ -20,7 +20,14 @@ export function SessionSummaryPage() {
   useEffect(() => {
     heading.current?.focus()
   }, [])
-  if (!isSessionResult(state)) return <Navigate to="/practice/setup" replace />
+  if (!isSessionResult(state))
+    return (
+      <Navigate
+        to="/practice/setup"
+        replace
+        state={{ notice: 'missing-summary' }}
+      />
+    )
   const { configuration, session, attempts } = state
   const activeCount = data.mistakePatterns.filter(
     (pattern) => !pattern.mastered,

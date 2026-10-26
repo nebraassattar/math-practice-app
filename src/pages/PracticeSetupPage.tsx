@@ -9,11 +9,24 @@ import type { SessionLength } from '../types/practiceConfiguration'
 import { isPracticeConfiguration } from '../utils/practiceConfiguration'
 import { useAppData } from '../app/dataContext'
 import { eligiblePatterns } from '../services/mistakeService'
+import { ErrorMessage } from '../components/common/ErrorMessage'
 
 export function PracticeSetupPage() {
   const { data } = useAppData()
   const { state }: { state: unknown } = useLocation()
   const initial = isPracticeConfiguration(state) ? state : null
+  const notice =
+    state && typeof state === 'object' && 'notice' in state
+      ? state.notice
+      : null
+  const noticeMessage =
+    notice === 'missing-session'
+      ? 'We could not find a practice session to continue. Choose your practice options below to start a new session.'
+      : notice === 'missing-summary'
+        ? 'We could not find results for this session. Your saved history is still available in Statistics. You can start another practice below.'
+        : notice === 'review-unavailable'
+          ? 'There are no matching mistakes ready to review. Try regular practice or choose different operations and difficulty.'
+          : null
   const [operations, setOperations] = useState<MathOperation[]>(() => [
     ...(initial?.operations ?? data.settings.defaultOperations),
   ])
@@ -58,6 +71,12 @@ export function PracticeSetupPage() {
     <section className="setup-page">
       <p className="eyebrow">Make it your adventure</p>
       <h1>Practice Setup</h1>
+      {noticeMessage && (
+        <ErrorMessage
+          title="Let’s get you ready to practice"
+          message={noticeMessage}
+        />
+      )}
       <p>
         Pick what you'd like to explore. You can choose more than one operation!
       </p>
