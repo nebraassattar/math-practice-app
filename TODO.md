@@ -819,40 +819,44 @@ Initial routes:
 
 ## Phase 21: Performance and Data Management
 
+Verified implementation and measurements are recorded in RELEASE.md. The measured history retains all attempts; archiving is not necessary for that case, so aggregate data is preserved without an archive migration. Dependency and asset audits found no unused direct dependencies or downloaded fonts/photos to remove.
+
 ### 83. Optimize React Rendering
 
-- [ ] Identify unnecessary component re-renders.
-- [ ] Memoize expensive statistics calculations.
-- [ ] Keep question generation outside render logic.
-- [ ] Avoid unnecessary global state updates.
+- [x] Identify unnecessary component re-renders.
+- [x] Memoize expensive statistics calculations.
+- [x] Keep question generation outside render logic.
+- [x] Avoid unnecessary global state updates.
 
 ### 84. Manage Large Practice Histories
 
-- [ ] Test with several thousand attempts.
-- [ ] Measure local-storage usage.
-- [ ] Limit the number of detailed recent sessions.
-- [ ] Summarize older attempt records if necessary.
-- [ ] Preserve aggregate statistics when archiving details.
+- [x] Test with several thousand attempts.
+- [x] Measure local-storage usage.
+- [x] Limit the number of detailed recent sessions.
+- [x] Summarize older attempt records if necessary.
+- [x] Preserve aggregate statistics when archiving details.
 
 ### 85. Improve Loading Performance
 
-- [ ] Measure the initial bundle size.
-- [ ] Lazy-load statistics and settings pages.
-- [ ] Remove unused dependencies.
-- [ ] Optimize fonts and images.
+- [x] Measure the initial bundle size.
+- [x] Lazy-load statistics and settings pages.
+- [x] Remove unused dependencies.
+- [x] Optimize fonts and images.
 - [ ] Test on slower devices.
 
 ---
 
 ## Phase 22: Release Preparation
 
+Netlify deployment and live smoke checks passed. The hosting badge is accepted. Named browser/device checks remain unverified; viewport resizing is not device emulation. One console error during rapid refresh did not reproduce; the console-clean item remains pending. See RELEASE.md.
+
 ### 86. Complete Privacy Review
 
-- [ ] Confirm that no personal information is collected.
-- [ ] Confirm that practice data remains in the browser.
-- [ ] Remove unnecessary tracking services.
-- [ ] Avoid child-facing advertisements.
-- [ ] Explain that clearing browser data removes progress.
+- [x] Confirm that no personal information is collected.
+- [x] Confirm that practice data remains in the browser.
+- [x] Remove unnecessary tracking services.
+- [x] Avoid child-facing advertisements.
+- [x] Explain that clearing browser data removes progress.
 
 ### 87. Complete Browser Testing
 
@@ -865,20 +869,20 @@ Initial routes:
 
 ### 88. Prepare the Production Build
 
-- [ ] Run all tests.
-- [ ] Resolve linting errors.
-- [ ] Resolve TypeScript errors.
-- [ ] Create the production build.
-- [ ] Test the production build locally.
-- [ ] Configure deployment routing for React Router.
+- [x] Run all tests.
+- [x] Resolve linting errors.
+- [x] Resolve TypeScript errors.
+- [x] Create the production build.
+- [x] Test the production build locally.
+- [x] Configure deployment routing for React Router.
 
 ### 89. Deploy the Application
 
-- [ ] Select a hosting service.
-- [ ] Deploy the production build.
-- [ ] Verify every route.
-- [ ] Verify local-storage persistence.
-- [ ] Verify responsive behavior.
+- [x] Select a hosting service.
+- [x] Deploy the production build.
+- [x] Verify every route.
+- [x] Verify local-storage persistence.
+- [x] Verify responsive behavior.
 - [ ] Verify that no development errors appear in the console.
 
 ---
@@ -941,20 +945,20 @@ Deliverable:
 
 For the fastest path to a working demonstration, implement these tasks first:
 
-1. [ ] Create the React and TypeScript project.
-2. [ ] Define the question types.
-3. [ ] Implement addition question generation.
-4. [ ] Generate four multiple-choice answers.
-5. [ ] Create the question card front.
-6. [ ] Add answer selection.
-7. [ ] Create the card back.
-8. [ ] Add the flip-card behavior.
-9. [ ] Add the right and wrong buttons.
-10. [ ] Generate the next question.
-11. [ ] Add subtraction.
-12. [ ] Add multiplication.
-13. [ ] Add division.
-14. [ ] Add practice-session totals.
-15. [ ] Add the session summary.
+1. [x] Create the React and TypeScript project.
+2. [x] Define the question types.
+3. [x] Implement addition question generation.
+4. [x] Generate four multiple-choice answers.
+5. [x] Create the question card front.
+6. [x] Add answer selection.
+7. [x] Create the card back.
+8. [x] Add the flip-card behavior.
+9. [x] Add the right and wrong buttons.
+10. [x] Generate the next question.
+11. [x] Add subtraction.
+12. [x] Add multiplication.
+13. [x] Add division.
+14. [x] Add practice-session totals.
+15. [x] Add the session summary.
 
 This produces a usable prototype before adding routing, persistence, advanced statistics, and personalized mistake review.

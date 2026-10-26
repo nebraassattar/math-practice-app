@@ -2,6 +2,10 @@
 
 A browser-based arithmetic practice application for children ages 7–12, built one milestone at a time. No account or backend is required.
 
+**Live site:** [Math Practice App](https://math-practice-app-nebraassattar.netlify.app)
+
+The class-assignment feature set is deployed. See [RELEASE.md](RELEASE.md) for final checks, performance measurements, privacy review, and outstanding verification. The full production-readiness checklist still includes manual checks; it is not marked universally complete.
+
 ## Current implementation
 
 Phase 20 adds automated axe accessibility scans and a full keyboard-only addition-session regression. See [TESTING.md](TESTING.md) for coverage, limitations, and the remaining real screen-reader check. Axe runs in jsdom and does not verify rendered contrast or reflow. Vitest is updated to its compatible patched release.
@@ -70,9 +74,9 @@ Production hosting must serve `index.html` for application routes so direct link
 
 ## Deploying through Netlify
 
-Deployment is prepared, but has not been performed. The root `netlify.toml` configures `npm run build`, publishes `dist`, selects Node 24, and rewrites `/*` to `/index.html` with status 200. Existing built assets are served normally; application routes are handled by React Router. No functions, backend, API keys, or application environment variables are required.
+The application is deployed on Netlify. The root `netlify.toml` configures `npm run build`, publishes `dist`, selects Node 24, and rewrites `/*` to `/index.html` with status 200. Existing built assets are served normally; application routes are handled by React Router. No functions, backend, API keys, or application environment variables are required.
 
-After reviewing and committing/pushing the prepared files to GitHub (a separate step that has not been performed for this configuration):
+To recreate the GitHub-connected deployment:
 
 1. Sign in to [Netlify](https://app.netlify.com/) and select your team.
 2. Choose **Add new project → Import an existing project**, then **GitHub**. Authorize access to the repository if prompted.
@@ -84,7 +88,7 @@ After reviewing and committing/pushing the prepared files to GitHub (a separate 
 
 Netlify builds from GitHub, so uncommitted local files are not included. Once Git integration is active, later pushes to `main` normally trigger production builds. See the official [repository deployment guide](https://docs.netlify.com/start/quickstarts/deploy-from-repository/), [file-based configuration](https://docs.netlify.com/build/configure-builds/file-based-configuration/), and [Node dependency configuration](https://docs.netlify.com/build/configure-builds/manage-dependencies/).
 
-The application is not marked complete: real screen-reader testing, the remaining cross-browser/device checks, slower-device performance testing, and live Netlify deployment verification remain pending in `TODO.md`. In-progress performance changes are also uncommitted and require review.
+Performance changes and Netlify configuration are committed and deployed. Live routes, refresh recovery, saved statistics, and mobile overflow checks passed. Real screen-reader testing, remaining cross-browser/device checks, slower-device testing, and follow-up on one non-reproducing console error remain open in `TODO.md`; see `RELEASE.md`. The Netlify hosting badge is accepted and remains enabled.
 
 ## Manual checks
 
