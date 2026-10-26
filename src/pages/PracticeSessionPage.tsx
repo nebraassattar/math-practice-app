@@ -16,6 +16,7 @@ import {
 import { QuestionCard } from '../components/practice/QuestionCard'
 import { ProgressBar } from '../components/practice/ProgressBar'
 import { eligiblePatterns } from '../services/mistakeService'
+import { encouragement } from '../services/feedbackService'
 
 function ActivePractice({
   configuration,
@@ -31,6 +32,8 @@ function ActivePractice({
     ),
   )
   const currentRun = useRef(run)
+  const [feedback, setFeedback] = useState('')
+  const [feedbackCorrect, setFeedbackCorrect] = useState(true)
   const animationEnabled = data.settings.cardAnimationEnabled
   const initialSession = useRef(run.session)
   useEffect(() => {
@@ -50,6 +53,9 @@ function ActivePractice({
       correct,
     )
     if (updated === currentRun.current) return
+    if (data.settings.feedbackEnabled !== false)
+      setFeedback(encouragement(correct, feedback))
+    setFeedbackCorrect(correct)
     currentRun.current = updated
     setRun(updated)
     saveProgress(updated.session, updated.attempts)
@@ -123,6 +129,15 @@ function ActivePractice({
         attempted={run.attempts.length}
         total={configuration.sessionLength}
       />
+      <p
+        className={`feedback-message ${feedbackCorrect ? 'feedback-positive' : 'feedback-supportive'}`}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        hidden={!feedback || data.settings.feedbackEnabled === false}
+      >
+        {feedback}
+      </p>
       <QuestionCard
         key={run.question.id}
         question={run.question}

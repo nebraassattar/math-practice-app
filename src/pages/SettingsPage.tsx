@@ -76,6 +76,20 @@ export function SettingsPage() {
             />
             Show explanations
           </label>
+          <label className="setting-toggle">
+            <input
+              type="checkbox"
+              checked={draft.feedbackEnabled !== false}
+              onChange={(event) =>
+                setDraft({ ...draft, feedbackEnabled: event.target.checked })
+              }
+            />
+            Encouraging feedback
+          </label>
+          <p>
+            Turn encouragement messages on or off. Sound and animations have
+            their own controls.
+          </p>
           <p>
             Sound plays a short tone when an answer is revealed. Reduced-motion
             preferences always turn off card animations.

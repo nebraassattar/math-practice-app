@@ -6,7 +6,7 @@ export function ProgressBar({
   total: number | 'continuous'
 }) {
   return (
-    <div className="session-progress" aria-live="polite">
+    <div className="session-progress" aria-live="polite" aria-atomic="true">
       <p>
         {total === 'continuous'
           ? `Question ${attempted + 1} · Continuous practice`
@@ -17,6 +17,7 @@ export function ProgressBar({
           aria-label="Completed questions"
           value={attempted}
           max={total}
+          aria-valuetext={`${attempted} of ${total} questions completed`}
         >
           {attempted} of {total} completed
         </progress>

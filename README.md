@@ -13,6 +13,8 @@ A browser-based arithmetic practice application for children ages 7–12, built 
 - Phase 11: saved sound, animation, explanation, mastery-goal, and default practice preferences; session-specific setup changes; and confirmed Clear All Application Data.
 - Phases 12–15: persistent mistake patterns, related-question generation, prioritized mistake-review sessions, configurable mastery, and active/mastered mistake statistics.
 
+Phases 16–17 now add number-key answer shortcuts, route focus and page titles, spoken question labels and live answer announcements, reduced-motion detection, optional encouragement, and responsive layout improvements. Automated and browser checks pass; the user also confirmed the remaining zoom and larger-font checks during review.
+
 Routes: `/`, `/practice/setup`, `/practice/session`, `/practice/summary`, `/statistics`, and `/settings`. Session and summary routes return to setup when required route data is missing or invalid.
 
 ## Storage behavior and privacy
@@ -88,3 +90,11 @@ Production hosting must serve `index.html` for application routes so direct link
 - Distractors use neighboring integers and common operation mistakes, including adjacent multiplication and division facts. Negative, fractional, duplicate, and correct-answer distractors are removed. Selection retries are capped at 12, with deterministic completion when draws repeat.
 - The main generator rejects invalid configuration, validates complete questions, and retries generation up to three times before returning a valid fixed question for an enabled operation and selected difficulty.
 - Immediate repeated problems are avoided with five bounded draws and a deterministic alternate at the same difficulty when randomness repeats.
+
+## Accessibility and polish review (Phases 16–17)
+
+- During a question, press 1–4 to select the corresponding answer. Tab, Enter, and Space also work. Shortcuts ignore editable fields, modified keys, and open dialogs.
+- Route changes focus the new page heading; practice focuses each question. Revealed answers and progress have accessible announcements. Test with your screen reader as part of final accessibility review.
+- Reduced motion overrides card animation. Encouraging feedback can be disabled independently in Settings; existing saved settings retain their preferences and default this new option to on.
+- Browser checks covered 320px and 390px phone widths and 768×1024, 1024×768, and 1024×600 tablet layouts. Statistics and Settings were checked at 320px without page overflow. Answer buttons remain large and wrap to one column when needed.
+- The user confirmed the remaining manual checks, including zoom and larger fonts, during milestone review. Text uses relative sizing.

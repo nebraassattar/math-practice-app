@@ -9,7 +9,7 @@ export function Header() {
           <span className="brand-mark" aria-hidden="true">
             +
           </span>
-          Math Practice App
+          <span className="brand-name">Math Practice App</span>
         </Link>
         <Navigation />
       </div>

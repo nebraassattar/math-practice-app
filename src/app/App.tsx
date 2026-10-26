@@ -3,6 +3,7 @@ import { PageContainer } from '../components/layout/PageContainer'
 import { AppRoutes } from './AppRoutes'
 import { AppProvider } from './AppProvider'
 import { useAppData } from './dataContext'
+import { RouteAccessibility } from './RouteAccessibility'
 
 function StorageNotice() {
   const { warning } = useAppData()
@@ -20,6 +21,7 @@ function App() {
         Skip to content
       </a>
       <Header />
+      <RouteAccessibility />
       <PageContainer>
         <StorageNotice />
         <AppRoutes />

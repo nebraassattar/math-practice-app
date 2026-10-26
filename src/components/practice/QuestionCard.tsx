@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { Question } from '../../types/question'
 import { AnswerChoice } from './AnswerChoice'
 import { playRevealSound } from '../../services/soundService'
 import { explainQuestion } from '../../services/explanationService'
+import { spokenQuestion } from '../../utils/accessibility'
+import { useReducedMotion } from '../../hooks/useReducedMotion'
 
 export function QuestionCard({
   question,
@@ -24,6 +26,9 @@ export function QuestionCard({
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [isCardFlipped, setIsCardFlipped] = useState(false)
   const submitted = useRef(false)
+  const answerButtons = useRef<(HTMLButtonElement | null)[]>([])
+  const shortcutHelpId = useId()
+  const reducedMotion = useReducedMotion()
   const heading = useRef<HTMLHeadingElement>(null)
   const resultHeading = useRef<HTMLHeadingElement>(null)
   useEffect(() => {
@@ -32,6 +37,38 @@ export function QuestionCard({
   useEffect(() => {
     if (isCardFlipped) resultHeading.current?.focus()
   }, [isCardFlipped])
+  useEffect(() => {
+    function handleKey(event: KeyboardEvent) {
+      if (
+        isCardFlipped ||
+        event.defaultPrevented ||
+        event.repeat ||
+        event.isComposing ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        !/^[1-4]$/.test(event.key)
+      )
+        return
+      if (document.querySelector('dialog[open]')) return
+      const target = event.target
+      if (
+        target instanceof Element &&
+        target.closest(
+          'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="combobox"], [role="spinbutton"]',
+        )
+      )
+        return
+      const index = Number(event.key) - 1
+      const value = question.choices[index]
+      if (value === undefined) return
+      event.preventDefault()
+      setSelectedAnswer(value)
+      answerButtons.current[index]?.focus()
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [question.choices, isCardFlipped])
 
   function record(correct: boolean) {
     if (submitted.current || !isCardFlipped || selectedAnswer === null) return
@@ -41,22 +78,44 @@ export function QuestionCard({
 
   return (
     <section
-      className={`question-card${isCardFlipped ? ' flipped' : ''}${animationEnabled ? ' animate-card' : ''}`}
+      className={`question-card${isCardFlipped ? ' flipped' : ''}${animationEnabled && !reducedMotion ? ' animate-card' : ''}`}
       aria-label="Question card"
     >
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {isCardFlipped
+          ? `The correct answer is ${question.correctAnswer}. You chose ${selectedAnswer}.`
+          : ''}
+      </p>
       {!isCardFlipped ? (
         <div className="card-front">
-          <h2 className="math-question" ref={heading} tabIndex={-1}>
+          <h2
+            className="math-question"
+            ref={heading}
+            tabIndex={-1}
+            aria-label={spokenQuestion(question)}
+          >
             {question.displayText}
           </h2>
-          <div className="answer-grid" role="group" aria-label="Answer choices">
-            {question.choices.map((value) => (
+          <p className="keyboard-hint" id={shortcutHelpId}>
+            Choose an answer. Use Tab and Enter or Space, or press 1–4.
+          </p>
+          <div
+            className="answer-grid"
+            role="group"
+            aria-label="Answer choices"
+            aria-describedby={shortcutHelpId}
+          >
+            {question.choices.map((value, index) => (
               <AnswerChoice
                 key={value}
                 value={value}
                 selected={selectedAnswer === value}
                 disabled={isCardFlipped}
                 onSelect={() => setSelectedAnswer(value)}
+                shortcut={index + 1}
+                buttonRef={(element) => {
+                  answerButtons.current[index] = element
+                }}
               />
             ))}
           </div>
@@ -68,7 +127,6 @@ export function QuestionCard({
               if (soundEnabled) playRevealSound()
               setIsCardFlipped(true)
             }}
-            aria-expanded={false}
           >
             Flip Card
           </button>

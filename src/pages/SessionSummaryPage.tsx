@@ -1,13 +1,21 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { isSessionResult } from '../services/practiceSession'
 import { difficulties, operations } from '../utils/practiceConfiguration'
 import { useAppData } from '../app/dataContext'
 import { eligiblePatterns } from '../services/mistakeService'
+import { encouragement } from '../services/feedbackService'
 
 export function SessionSummaryPage() {
   const { data } = useAppData()
   const { state }: { state: unknown } = useLocation()
+  const [feedback] = useState(() =>
+    isSessionResult(state) && state.attempts.length > 0
+      ? encouragement(
+          state.attempts[state.attempts.length - 1].selfReportedCorrect,
+        )
+      : '',
+  )
   const heading = useRef<HTMLHeadingElement>(null)
   useEffect(() => {
     heading.current?.focus()
@@ -33,6 +41,9 @@ export function SessionSummaryPage() {
       <p>
         Nice work making time to learn! Here's how you said your practice went.
       </p>
+      {data.settings.feedbackEnabled !== false && feedback && (
+        <p className="feedback-message feedback-positive">{feedback}</p>
+      )}
       {!canReplay && (
         <p>
           All matching mistake patterns are mastered. Nice work! Choose regular

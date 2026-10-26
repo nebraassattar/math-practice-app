@@ -12,6 +12,7 @@ export interface AppSettings {
   defaultDifficulty: DifficultyLevel
   defaultOperations: MathOperation[]
   masteryThreshold: number
+  feedbackEnabled?: boolean
 }
 
 export interface AppState {

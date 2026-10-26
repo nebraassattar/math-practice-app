@@ -32,6 +32,7 @@ export function defaultSettings(): AppSettings {
     defaultDifficulty: 1,
     defaultSessionLength: 10,
     masteryThreshold: 3,
+    feedbackEnabled: true,
   }
 }
 export function emptyData(): StoredData {
@@ -70,7 +71,9 @@ export function isSettings(value: unknown): value is AppSettings {
     }) &&
     typeof value.masteryThreshold === 'number' &&
     Number.isSafeInteger(value.masteryThreshold) &&
-    value.masteryThreshold > 0
+    value.masteryThreshold > 0 &&
+    (value.feedbackEnabled === undefined ||
+      typeof value.feedbackEnabled === 'boolean')
   )
 }
 
@@ -177,7 +180,7 @@ export function loadData(storage?: StorageAccess): LoadResult {
       }
     let repaired = false
     const settings = isSettings(parsed.settings)
-      ? parsed.settings
+      ? { ...defaultSettings(), ...parsed.settings }
       : ((repaired = true), defaults.settings)
     function records<T>(
       value: unknown,
