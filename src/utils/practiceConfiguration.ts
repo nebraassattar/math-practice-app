@@ -47,11 +47,16 @@ export function isPracticeConfiguration(
   return (
     Array.isArray(config.operations) &&
     config.operations.length > 0 &&
-    config.operations.every((operation) =>
+    Array.from(config.operations).every((operation) =>
       operations.some((option) => option.value === operation),
     ) &&
     new Set(config.operations).size === config.operations.length &&
     difficulties.some((option) => option.value === config.difficulty) &&
-    [5, 10, 20, 'continuous'].includes(config.sessionLength as number | string)
+    [5, 10, 20, 'continuous'].includes(
+      config.sessionLength as number | string,
+    ) &&
+    (config.mode === undefined ||
+      config.mode === 'regular' ||
+      config.mode === 'mistake-review')
   )
 }

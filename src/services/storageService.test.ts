@@ -35,19 +35,19 @@ describe('storage service', () => {
       difficulty: 1,
       operation: 'addition',
     })
-    expect(JSON.parse(localStorage.getItem(DATA_KEY)!).version).toBe(1)
+    expect(JSON.parse(localStorage.getItem(DATA_KEY)!).version).toBe(2)
   })
-  it.each([undefined, 0])(
+  it.each([undefined, 0, 1])(
     'migrates an initial envelope with version %s without losing progress',
     (version) => {
       const data = { ...history(), version }
       localStorage.setItem(DATA_KEY, JSON.stringify(data))
       const loaded = loadData()
       expect(loaded.readOnly).toBe(false)
-      expect(loaded.data.version).toBe(1)
+      expect(loaded.data.version).toBe(2)
       expect(loaded.data.attempts).toEqual(data.attempts)
       saveData(loaded.data)
-      expect(JSON.parse(localStorage.getItem(DATA_KEY)!).version).toBe(1)
+      expect(JSON.parse(localStorage.getItem(DATA_KEY)!).version).toBe(2)
     },
   )
   it('protects unknown future schemas and leaves their raw data untouched', () => {

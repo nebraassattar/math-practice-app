@@ -17,6 +17,7 @@ export interface PracticeAttempt {
   source: QuestionSource
   attemptedAt: string
   sessionId: string
+  mistakePatternId?: string
 }
 
 export interface PracticeSession {
@@ -29,4 +30,5 @@ export interface PracticeSession {
   attempted: number
   correct: number
   incorrect: number
+  mode?: 'regular' | 'mistake-review'
 }

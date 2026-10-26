@@ -6,4 +6,5 @@ export interface PracticeConfiguration {
   operations: MathOperation[]
   difficulty: DifficultyLevel
   sessionLength: SessionLength
+  mode?: 'regular' | 'mistake-review'
 }

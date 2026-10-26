@@ -1,13 +1,26 @@
 import type { AppSettings } from '../types/settings'
 import type { PracticeAttempt, PracticeSession } from '../types/session'
-import { isDifficulty, isOperation, calculate } from './questionRules'
+import {
+  isDifficulty,
+  isOperation,
+  isValidArithmetic,
+  calculate,
+} from './questionRules'
 import { isPracticeConfiguration } from '../utils/practiceConfiguration'
+import type { MistakePattern } from '../types/mistake'
+import {
+  applyMasteryThreshold,
+  isMistakePattern,
+  patternKey,
+  updateMistakePatterns,
+} from './mistakeService'
 
 export interface StoredData {
-  version: 1
+  version: 2
   settings: AppSettings
   sessions: PracticeSession[]
   attempts: PracticeAttempt[]
+  mistakePatterns: MistakePattern[]
 }
 
 export function defaultSettings(): AppSettings {
@@ -22,7 +35,13 @@ export function defaultSettings(): AppSettings {
   }
 }
 export function emptyData(): StoredData {
-  return { version: 1, settings: defaultSettings(), sessions: [], attempts: [] }
+  return {
+    version: 2,
+    settings: defaultSettings(),
+    sessions: [],
+    attempts: [],
+    mistakePatterns: [],
+  }
 }
 
 function record(value: unknown): value is Record<string, unknown> {
@@ -93,14 +112,20 @@ export function isStoredAttempt(value: unknown): value is PracticeAttempt {
       value.correctAnswer,
       value.selectedAnswer,
     ].every(count) &&
-    !(value.operation === 'division' && value.secondOperand === 0) &&
+    isValidArithmetic(
+      value.operation,
+      value.difficulty,
+      value.firstOperand as number,
+      value.secondOperand as number,
+    ) &&
     calculate(
       value.operation,
       value.firstOperand as number,
       value.secondOperand as number,
     ) === value.correctAnswer &&
     typeof value.selfReportedCorrect === 'boolean' &&
-    value.source === 'regular' &&
+    (value.source === 'regular' ||
+      (value.source === 'mistake-review' && id(value.mistakePatternId))) &&
     timestamp(value.attemptedAt)
   )
 }
@@ -141,7 +166,8 @@ export function loadData(storage?: StorageAccess): LoadResult {
     if (
       parsed.version !== undefined &&
       parsed.version !== 0 &&
-      parsed.version !== 1
+      parsed.version !== 1 &&
+      parsed.version !== 2
     )
       return {
         data: defaults,
@@ -180,8 +206,37 @@ export function loadData(storage?: StorageAccess): LoadResult {
       .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
       .slice(0, RECENT_SESSION_LIMIT)
     const attempts = records(parsed.attempts, isStoredAttempt)
+    let mistakePatterns: MistakePattern[]
+    if (parsed.version !== 2) {
+      // Version 2 adds mistake patterns, seeded from the existing regular practice history.
+      mistakePatterns = [...attempts]
+        .sort((a, b) => Date.parse(a.attemptedAt) - Date.parse(b.attemptedAt))
+        .reduce<MistakePattern[]>(
+          (patterns, attempt) =>
+            updateMistakePatterns(patterns, attempt, settings.masteryThreshold),
+          [],
+        )
+    } else {
+      const keys = new Set<string>()
+      mistakePatterns = records(
+        parsed.mistakePatterns,
+        isMistakePattern,
+      ).filter((pattern) => {
+        const key = patternKey(pattern)
+        if (keys.has(key)) {
+          repaired = true
+          return false
+        }
+        keys.add(key)
+        return true
+      })
+    }
+    mistakePatterns = applyMasteryThreshold(
+      mistakePatterns,
+      settings.masteryThreshold,
+    )
     return {
-      data: { version: 1, settings, sessions, attempts },
+      data: { version: 2, settings, sessions, attempts, mistakePatterns },
       warning: repaired
         ? 'Some saved records were invalid. Valid history was kept and invalid settings were restored to defaults.'
         : null,

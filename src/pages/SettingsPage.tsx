@@ -18,6 +18,7 @@ export function SettingsPage() {
   const [confirmClear, setConfirmClear] = useState(false)
   const navigate = useNavigate()
   const valid = isSettings(draft)
+  const defaultOperationCount = draft.defaultOperations.length
   function save(event: FormEvent) {
     event.preventDefault()
     if (!valid) return
@@ -79,6 +80,26 @@ export function SettingsPage() {
             Sound plays a short tone when an answer is revealed. Reduced-motion
             preferences always turn off card animations.
           </p>
+          <label className="setting-toggle">
+            Correct related answers required for mastery
+            <input
+              type="number"
+              min="1"
+              step="1"
+              value={draft.masteryThreshold || ''}
+              onChange={(event) =>
+                setDraft({
+                  ...draft,
+                  masteryThreshold: Number(event.target.value),
+                })
+              }
+              aria-describedby="mastery-setting-help"
+            />
+          </label>
+          <p id="mastery-setting-help">
+            Default: 3. Changing this goal updates which patterns are mastered
+            using their current review progress.
+          </p>
         </fieldset>
         <OperationSelector
           selected={draft.defaultOperations}
@@ -100,7 +121,9 @@ export function SettingsPage() {
         />
         {!valid && (
           <p id="settings-validation">
-            Choose at least one default operation before saving.
+            {defaultOperationCount === 0
+              ? 'Choose at least one default operation before saving.'
+              : 'Choose a positive whole-number mastery goal before saving.'}
           </p>
         )}
         <button

@@ -15,6 +15,7 @@ import {
 } from '../services/practiceSession'
 import { QuestionCard } from '../components/practice/QuestionCard'
 import { ProgressBar } from '../components/practice/ProgressBar'
+import { eligiblePatterns } from '../services/mistakeService'
 
 function ActivePractice({
   configuration,
@@ -22,7 +23,13 @@ function ActivePractice({
   configuration: PracticeConfiguration
 }) {
   const { data, saveProgress, saveSettings } = useAppData()
-  const [run, setRun] = useState(() => createPracticeRun(configuration))
+  const [run, setRun] = useState(() =>
+    createPracticeRun(
+      configuration,
+      data.mistakePatterns,
+      data.settings.masteryThreshold,
+    ),
+  )
   const currentRun = useRef(run)
   const animationEnabled = data.settings.cardAnimationEnabled
   const initialSession = useRef(run.session)
@@ -74,6 +81,16 @@ function ActivePractice({
     <section className="practice-page">
       <p className="eyebrow">One question at a time</p>
       <h1>Practice Session</h1>
+      {configuration.mode === 'mistake-review' && (
+        <p className="review-badge">
+          Mistake review ·{' '}
+          {eligiblePatterns(run.reviewPatterns, configuration).length} active{' '}
+          {eligiblePatterns(run.reviewPatterns, configuration).length === 1
+            ? 'pattern'
+            : 'patterns'}{' '}
+          · {run.masteryThreshold} correct related answers to master a pattern
+        </p>
+      )}
       <details className="practice-details">
         <summary>Your practice choices</summary>
         <dl className="configuration-summary">
@@ -140,9 +157,29 @@ function ActivePractice({
   )
 }
 
+function AdmittedPractice({
+  configuration,
+}: {
+  configuration: PracticeConfiguration
+}) {
+  const { data } = useAppData()
+  // Validate review availability once on entry; mastering the last pattern must
+  // allow the active run to navigate to its summary instead of redirecting early.
+  const [available] = useState(
+    () =>
+      configuration.mode !== 'mistake-review' ||
+      eligiblePatterns(data.mistakePatterns, configuration).length > 0,
+  )
+  return available ? (
+    <ActivePractice configuration={configuration} />
+  ) : (
+    <Navigate to="/practice/setup" replace />
+  )
+}
+
 export function PracticeSessionPage() {
   const { state, key }: { state: unknown; key: string } = useLocation()
   if (!isPracticeConfiguration(state))
     return <Navigate to="/practice/setup" replace />
-  return <ActivePractice key={key} configuration={state} />
+  return <AdmittedPractice key={key} configuration={state} />
 }

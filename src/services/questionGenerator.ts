@@ -17,12 +17,12 @@ import {
   symbols,
 } from './questionRules'
 
-function makeQuestion(
+export function makeQuestion(
   operation: MathOperation,
   difficulty: DifficultyLevel,
   firstOperand: number,
   secondOperand: number,
-  random: RandomSource,
+  random: RandomSource = Math.random,
 ): Question {
   const question: Question = {
     id: createId(),

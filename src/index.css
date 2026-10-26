@@ -565,3 +565,34 @@ summary:focus-visible {
     grid-template-columns: 1fr;
   }
 }
+
+.review-badge {
+  padding: 0.8rem 1rem;
+  border: 1px solid #9fb5e8;
+  border-radius: 12px;
+  background: #e9efff;
+}
+.pattern-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.pattern-list progress {
+  width: 100%;
+  accent-color: #3e52b5;
+}
+.setting-toggle input[type='number'] {
+  width: 5rem;
+  min-height: 44px;
+  flex-shrink: 0;
+  padding: 0.4rem;
+  border: 2px solid #bcc9df;
+  border-radius: 8px;
+}
+@media (max-width: 600px) {
+  .pattern-list {
+    grid-template-columns: 1fr;
+  }
+}

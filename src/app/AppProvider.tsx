@@ -12,6 +12,10 @@ import {
   saveData,
 } from '../services/storageService'
 import type { StoredData } from '../services/storageService'
+import {
+  applyMasteryThreshold,
+  updateMistakePatterns,
+} from '../services/mistakeService'
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [loaded] = useState(() => loadData())
@@ -37,7 +41,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const saveSettings = useCallback(
     (settings: AppSettings) => {
       if (!isSettings(settings)) return false
-      return commit({ ...current.current, settings })
+      return commit({
+        ...current.current,
+        settings,
+        mistakePatterns: applyMasteryThreshold(
+          current.current.mistakePatterns,
+          settings.masteryThreshold,
+        ),
+      })
     },
     [commit],
   )
@@ -45,7 +56,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (session: PracticeSession, attempts: PracticeAttempt[] = []) => {
       const existing = current.current
       const knownIds = new Set(existing.attempts.map((attempt) => attempt.id))
-      const fresh = attempts.filter((attempt) => !knownIds.has(attempt.id))
+      const fresh = attempts.filter((attempt) => {
+        if (knownIds.has(attempt.id)) return false
+        knownIds.add(attempt.id)
+        return true
+      })
       const previousSession = existing.sessions.find(
         (item) => item.id === session.id,
       )
@@ -67,12 +82,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...existing,
         sessions,
         attempts: [...existing.attempts, ...fresh],
+        mistakePatterns: fresh.reduce(
+          (patterns, attempt) =>
+            updateMistakePatterns(
+              patterns,
+              attempt,
+              existing.settings.masteryThreshold,
+            ),
+          existing.mistakePatterns,
+        ),
       })
     },
     [commit],
   )
   const resetStatistics = useCallback(
-    () => commit({ ...current.current, sessions: [], attempts: [] }, true),
+    () =>
+      commit(
+        { ...current.current, sessions: [], attempts: [], mistakePatterns: [] },
+        true,
+      ),
     [commit],
   )
   const clearAllData = useCallback(() => {

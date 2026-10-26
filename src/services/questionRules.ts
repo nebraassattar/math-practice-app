@@ -53,7 +53,7 @@ export function calculate(
   }
 }
 
-/** Validate a regular whole-number question, including its four answer choices. */
+/** Validate a whole-number question and its four answer choices, including review metadata. */
 export function isValidGeneratedQuestion(value: unknown): value is Question {
   if (typeof value !== 'object' || value === null) return false
   const q = value as Record<string, unknown>
@@ -69,7 +69,12 @@ export function isValidGeneratedQuestion(value: unknown): value is Question {
   if (
     typeof q.id !== 'string' ||
     q.id.length === 0 ||
-    q.source !== 'regular' ||
+    !(
+      q.source === 'regular' ||
+      (q.source === 'mistake-review' &&
+        typeof q.mistakePatternId === 'string' &&
+        q.mistakePatternId.length > 0)
+    ) ||
     !Array.isArray(q.choices) ||
     q.choices.length !== 4 ||
     !Array.from(q.choices).every(
@@ -85,8 +90,21 @@ export function isValidGeneratedQuestion(value: unknown): value is Question {
     calculate(q.operation, a, b) !== answer
   )
     return false
-  const level = q.difficulty
-  switch (q.operation) {
+  return isValidArithmetic(q.operation, q.difficulty, a, b)
+}
+
+export function isValidArithmetic(
+  operation: MathOperation,
+  level: DifficultyLevel,
+  a: number,
+  b: number,
+): boolean {
+  const answer = calculate(operation, a, b)
+  if (
+    ![a, b, answer].every((value) => Number.isSafeInteger(value) && value >= 0)
+  )
+    return false
+  switch (operation) {
     case 'addition':
       return (
         a <= operandMaximum[level] &&

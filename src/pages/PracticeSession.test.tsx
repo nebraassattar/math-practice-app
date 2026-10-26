@@ -79,8 +79,8 @@ describe('practice flow', () => {
     expect(summaryValue('Difficulty')).toBe('Beginner')
     expect(summaryValue('Mistake-review questions')).toBe('0')
     expect(
-      screen.getByRole('button', { name: 'Practice Mistakes' }),
-    ).toBeDisabled()
+      screen.getByRole('link', { name: 'Practice Mistakes' }),
+    ).toHaveAttribute('href', '/practice/setup')
     expect(
       screen.getByRole('link', { name: 'Change Settings' }),
     ).toHaveAttribute('href', '/practice/setup')

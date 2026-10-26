@@ -5,6 +5,7 @@ import { accuracy, calculateStatistics } from '../services/statisticsService'
 import { operations, difficulties } from '../utils/practiceConfiguration'
 import { StatisticsCard } from '../components/statistics/StatisticsCard'
 import { ConfirmDialog } from '../components/common/ConfirmDialog'
+import { MistakeStatistics } from '../components/statistics/MistakeStatistics'
 
 export function StatisticsPage() {
   const { data, resetStatistics } = useAppData()
@@ -92,6 +93,10 @@ export function StatisticsPage() {
                             (option) => option.value === session.difficulty,
                           )?.label
                         }
+                        {' · '}
+                        {session.mode === 'mistake-review'
+                          ? 'Mistake review'
+                          : 'Regular practice'}
                       </p>
                       <dl className="stat-values">
                         <div>
@@ -118,6 +123,7 @@ export function StatisticsPage() {
           </>
         )}
       </section>
+      <MistakeStatistics />
       <button className="button" onClick={() => setConfirmReset(true)}>
         Reset Statistics
       </button>
@@ -125,7 +131,7 @@ export function StatisticsPage() {
       {confirmReset && (
         <ConfirmDialog
           title="Reset Statistics?"
-          message="Are you sure you want to erase all practice history and statistics? Settings will stay unchanged. This cannot be undone."
+          message="Are you sure you want to erase all practice history, mistake patterns, and statistics? Settings will stay unchanged. This cannot be undone."
           confirmLabel="Erase Practice History"
           onCancel={() => setConfirmReset(false)}
           onConfirm={() => {
@@ -140,8 +146,7 @@ export function StatisticsPage() {
         />
       )}
       <p className="development-note">
-        Clearing browser data removes your saved progress. Mistake statistics
-        will arrive in a later phase.
+        Clearing browser data removes your saved progress and mistake patterns.
       </p>
     </section>
   )

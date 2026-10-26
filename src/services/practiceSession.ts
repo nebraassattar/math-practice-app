@@ -4,6 +4,13 @@ import type { Question } from '../types/question'
 import { createId } from '../utils/ids'
 import { isPracticeConfiguration } from '../utils/practiceConfiguration'
 import { generateQuestion } from './questionGenerator'
+import type { MistakePattern } from '../types/mistake'
+import {
+  eligiblePatterns,
+  selectReviewPattern,
+  updateMistakePatterns,
+} from './mistakeService'
+import { generateSimilarQuestion } from './similarQuestionGenerator'
 
 function sameProblem(a: Question, b: Question) {
   return (
@@ -16,7 +23,13 @@ function sameProblem(a: Question, b: Question) {
 export function nextQuestion(
   configuration: PracticeConfiguration,
   previous?: Question,
+  reviewPatterns: readonly MistakePattern[] = [],
 ): Question {
+  if (configuration.mode === 'mistake-review') {
+    const available = eligiblePatterns(reviewPatterns, configuration)
+    const pattern = selectReviewPattern(available, previous?.mistakePatternId)
+    return generateSimilarQuestion(pattern, configuration.operations, previous)
+  }
   for (let retry = 0; retry < 5; retry++) {
     const question = generateQuestion(
       configuration.operations,
@@ -43,6 +56,8 @@ export function nextQuestion(
 
 export function createPracticeRun(
   configuration: PracticeConfiguration,
+  reviewPatterns: readonly MistakePattern[] = [],
+  masteryThreshold = 3,
 ): PracticeRun {
   if (!isPracticeConfiguration(configuration))
     throw new Error('Invalid practice configuration.')
@@ -56,9 +71,11 @@ export function createPracticeRun(
       correct: 0,
       incorrect: 0,
     },
-    question: nextQuestion(configuration),
+    question: nextQuestion(configuration, undefined, reviewPatterns),
     attempts: [],
     isActive: true,
+    reviewPatterns: [...reviewPatterns],
+    masteryThreshold,
   }
 }
 
@@ -89,14 +106,27 @@ export function recordResult(
     source: question.source,
     attemptedAt: new Date().toISOString(),
     sessionId: run.session.id,
+    ...(question.mistakePatternId
+      ? { mistakePatternId: question.mistakePatternId }
+      : {}),
   }
   const attempts = [...run.attempts, attempt]
+  const reviewPatterns = updateMistakePatterns(
+    run.reviewPatterns,
+    attempt,
+    run.masteryThreshold,
+  )
+  const noMoreReview =
+    run.configuration.mode === 'mistake-review' &&
+    eligiblePatterns(reviewPatterns, run.configuration).length === 0
   const complete =
-    run.configuration.sessionLength !== 'continuous' &&
-    attempts.length >= run.configuration.sessionLength
+    noMoreReview ||
+    (run.configuration.sessionLength !== 'continuous' &&
+      attempts.length >= run.configuration.sessionLength)
   return {
     ...run,
     attempts,
+    reviewPatterns,
     isActive: !complete,
     session: {
       ...run.session,
@@ -107,7 +137,7 @@ export function recordResult(
     },
     question: complete
       ? run.question
-      : nextQuestion(run.configuration, run.question),
+      : nextQuestion(run.configuration, run.question, reviewPatterns),
   }
 }
 
@@ -152,6 +182,7 @@ export function isSessionResult(value: unknown): value is SessionResult {
     !isPracticeConfiguration(session) ||
     session.difficulty !== configuration.difficulty ||
     session.sessionLength !== configuration.sessionLength ||
+    (session.mode ?? 'regular') !== (configuration.mode ?? 'regular') ||
     session.operations.join(',') !== configuration.operations.join(',')
   )
     return false
@@ -179,7 +210,10 @@ export function isSessionResult(value: unknown): value is SessionResult {
         typeof attempt.selfReportedCorrect === 'boolean' &&
         configuration.operations.includes(attempt.operation) &&
         attempt.difficulty === configuration.difficulty &&
-        attempt.source === 'regular' &&
+        (attempt.source === 'regular' ||
+          (attempt.source === 'mistake-review' &&
+            typeof attempt.mistakePatternId === 'string' &&
+            attempt.mistakePatternId.length > 0)) &&
         [
           attempt.firstOperand,
           attempt.secondOperand,

@@ -2,8 +2,11 @@ import { useEffect, useRef } from 'react'
 import { Link, Navigate, useLocation } from 'react-router-dom'
 import { isSessionResult } from '../services/practiceSession'
 import { difficulties, operations } from '../utils/practiceConfiguration'
+import { useAppData } from '../app/dataContext'
+import { eligiblePatterns } from '../services/mistakeService'
 
 export function SessionSummaryPage() {
+  const { data } = useAppData()
   const { state }: { state: unknown } = useLocation()
   const heading = useRef<HTMLHeadingElement>(null)
   useEffect(() => {
@@ -11,6 +14,12 @@ export function SessionSummaryPage() {
   }, [])
   if (!isSessionResult(state)) return <Navigate to="/practice/setup" replace />
   const { configuration, session, attempts } = state
+  const activeCount = data.mistakePatterns.filter(
+    (pattern) => !pattern.mastered,
+  ).length
+  const canReplay =
+    configuration.mode !== 'mistake-review' ||
+    eligiblePatterns(data.mistakePatterns, configuration).length > 0
   const accuracy =
     session.attempted === 0
       ? 0
@@ -24,6 +33,12 @@ export function SessionSummaryPage() {
       <p>
         Nice work making time to learn! Here's how you said your practice went.
       </p>
+      {!canReplay && (
+        <p>
+          All matching mistake patterns are mastered. Nice work! Choose regular
+          practice or a different set of mistakes next.
+        </p>
+      )}
       <dl className="summary-totals">
         <div>
           <dt>Questions attempted</dt>
@@ -67,22 +82,38 @@ export function SessionSummaryPage() {
         </dd>
       </dl>
       <div className="summary-actions">
-        <Link
-          className="button button-primary"
-          to="/practice/session"
-          state={configuration}
-          replace
-        >
-          Practice Again
-        </Link>
-        <button
-          className="button"
-          type="button"
-          disabled
-          aria-describedby="mistake-review-help"
-        >
-          Practice Mistakes
-        </button>
+        {canReplay ? (
+          <Link
+            className="button button-primary"
+            to="/practice/session"
+            state={configuration}
+            replace
+          >
+            Practice Again
+          </Link>
+        ) : (
+          <button className="button" disabled>
+            Practice Again
+          </button>
+        )}
+        {activeCount > 0 ? (
+          <Link
+            className="button"
+            to="/practice/setup"
+            state={{ ...configuration, mode: 'mistake-review' }}
+          >
+            Practice Mistakes
+          </Link>
+        ) : (
+          <button
+            className="button"
+            type="button"
+            disabled
+            aria-describedby="mistake-review-help"
+          >
+            Practice Mistakes
+          </button>
+        )}
         <Link className="button" to="/practice/setup">
           Change Settings
         </Link>
@@ -94,8 +125,9 @@ export function SessionSummaryPage() {
         </Link>
       </div>
       <p id="mistake-review-help" className="development-note">
-        Practice Mistakes will be available when mistake review is added in a
-        later phase.
+        {activeCount > 0
+          ? `${activeCount} active mistake ${activeCount === 1 ? 'pattern is' : 'patterns are'} available for related practice.`
+          : 'No active mistake patterns to review. Marking a future answer wrong makes related practice available.'}
       </p>
       <p className="development-note">
         Your practice history is saved in this browser. Clearing browser data
