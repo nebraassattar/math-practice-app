@@ -12,6 +12,9 @@ export function QuestionCard({
   animationEnabled,
   showExplanations = false,
   soundEnabled = false,
+  initialAnswer = null,
+  initiallyRevealed = false,
+  onCardChange,
 }: {
   question: Question
   onResult: (
@@ -22,9 +25,17 @@ export function QuestionCard({
   animationEnabled: boolean
   showExplanations?: boolean
   soundEnabled?: boolean
+  initialAnswer?: number | null
+  initiallyRevealed?: boolean
+  onCardChange?: (selectedAnswer: number | null, revealed: boolean) => void
 }) {
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
-  const [isCardFlipped, setIsCardFlipped] = useState(false)
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(
+    initialAnswer,
+  )
+  const [isCardFlipped, setIsCardFlipped] = useState(initiallyRevealed)
+  useEffect(() => {
+    onCardChange?.(selectedAnswer, isCardFlipped)
+  }, [selectedAnswer, isCardFlipped, onCardChange])
   const submitted = useRef(false)
   const answerButtons = useRef<(HTMLButtonElement | null)[]>([])
   const shortcutHelpId = useId()

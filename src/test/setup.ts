@@ -3,6 +3,7 @@ import { beforeEach } from 'vitest'
 
 beforeEach(() => {
   localStorage.clear()
+  sessionStorage.clear()
 })
 // jsdom has no native dialog implementation; browsers provide its modal focus behavior.
 HTMLDialogElement.prototype.showModal = function () {

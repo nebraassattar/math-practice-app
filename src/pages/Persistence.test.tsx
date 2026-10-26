@@ -267,7 +267,11 @@ describe('saved statistics and settings', () => {
       difficulty: 1,
       sessionLength: 5,
     })
-    expect(screen.getByRole('alert')).toHaveTextContent('could not be saved')
+    expect(
+      screen
+        .getAllByRole('alert')
+        .some((alert) => alert.textContent?.includes('could not be saved')),
+    ).toBe(true)
     await user.click(
       within(
         screen.getByRole('group', { name: 'Answer choices' }),

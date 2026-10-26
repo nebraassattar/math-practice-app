@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAppData } from '../app/dataContext'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import type { PracticeConfiguration } from '../types/practiceConfiguration'
@@ -17,27 +17,56 @@ import { QuestionCard } from '../components/practice/QuestionCard'
 import { ProgressBar } from '../components/practice/ProgressBar'
 import { eligiblePatterns } from '../services/mistakeService'
 import { encouragement } from '../services/feedbackService'
+import {
+  clearActiveSession,
+  loadActiveSession,
+  saveActiveSession,
+} from '../services/activeSessionService'
+import type { ActiveSession } from '../services/activeSessionService'
+import { SessionNavigationGuard } from '../components/practice/SessionNavigationGuard'
 
 function ActivePractice({
   configuration,
+  restored,
 }: {
   configuration: PracticeConfiguration
+  restored: ActiveSession | null
 }) {
   const { data, saveProgress, saveSettings } = useAppData()
-  const [run, setRun] = useState(() =>
-    createPracticeRun(
-      configuration,
-      data.mistakePatterns,
-      data.settings.masteryThreshold,
-    ),
+  const [run, setRun] = useState(
+    () =>
+      restored?.run ??
+      createPracticeRun(
+        configuration,
+        data.mistakePatterns,
+        data.settings.masteryThreshold,
+      ),
   )
   const currentRun = useRef(run)
+  const [recoveryFailed, setRecoveryFailed] = useState(false)
+  const persistCard = useCallback(
+    (selectedAnswer: number | null, revealed: boolean) => {
+      if (!currentRun.current.isActive) return
+      setRecoveryFailed(
+        !saveActiveSession({
+          version: 1,
+          run: currentRun.current,
+          selectedAnswer,
+          revealed,
+        }),
+      )
+    },
+    [],
+  )
   const [feedback, setFeedback] = useState('')
   const [feedbackCorrect, setFeedbackCorrect] = useState(true)
   const animationEnabled = data.settings.cardAnimationEnabled
-  const initialSession = useRef(run.session)
+  const initialSession = useRef(run)
   useEffect(() => {
-    saveProgress(initialSession.current)
+    saveProgress(
+      initialSession.current.session,
+      initialSession.current.attempts,
+    )
   }, [saveProgress])
   const navigate = useNavigate()
 
@@ -59,6 +88,14 @@ function ActivePractice({
     currentRun.current = updated
     setRun(updated)
     saveProgress(updated.session, updated.attempts)
+    if (updated.isActive)
+      saveActiveSession({
+        version: 1,
+        run: updated,
+        selectedAnswer: null,
+        revealed: false,
+      })
+    else clearActiveSession()
     if (!updated.isActive)
       navigate('/practice/summary', {
         state: toSessionResult(updated),
@@ -77,14 +114,32 @@ function ActivePractice({
     currentRun.current = completed
     setRun(completed)
     saveProgress(completed.session, completed.attempts)
+    clearActiveSession()
     navigate('/practice/summary', {
       state: toSessionResult(completed),
       replace: true,
     })
   }
 
+  function endAndLeave() {
+    const completed = finishRun(currentRun.current)
+    currentRun.current = completed
+    saveProgress(completed.session, completed.attempts)
+    clearActiveSession()
+  }
+
   return (
     <section className="practice-page">
+      <SessionNavigationGuard
+        onLeave={endAndLeave}
+        isActive={() => currentRun.current.isActive}
+      />
+      {recoveryFailed && (
+        <p role="alert">
+          This browser cannot save your current question. Keep this page open to
+          continue practicing.
+        </p>
+      )}
       <p className="eyebrow">One question at a time</p>
       <h1>Practice Session</h1>
       {configuration.mode === 'mistake-review' && (
@@ -145,6 +200,15 @@ function ActivePractice({
         animationEnabled={animationEnabled}
         showExplanations={data.settings.showExplanations}
         soundEnabled={data.settings.soundEffectsEnabled}
+        initialAnswer={
+          restored?.run.question.id === run.question.id
+            ? restored.selectedAnswer
+            : null
+        }
+        initiallyRevealed={
+          restored?.run.question.id === run.question.id && restored.revealed
+        }
+        onCardChange={persistCard}
       />
       <div className="session-controls">
         <label>
@@ -165,8 +229,9 @@ function ActivePractice({
         </button>
       </div>
       <p className="development-note">
-        Completed answers are saved in this browser. Your current question is
-        not restored after a refresh yet.
+        Your current question is saved for refreshes in this tab. Completed
+        answers stay in your practice history. Leaving this page asks whether to
+        end the session.
       </p>
     </section>
   )
@@ -174,19 +239,22 @@ function ActivePractice({
 
 function AdmittedPractice({
   configuration,
+  restored,
 }: {
   configuration: PracticeConfiguration
+  restored: ActiveSession | null
 }) {
   const { data } = useAppData()
   // Validate review availability once on entry; mastering the last pattern must
   // allow the active run to navigate to its summary instead of redirecting early.
   const [available] = useState(
     () =>
+      restored !== null ||
       configuration.mode !== 'mistake-review' ||
       eligiblePatterns(data.mistakePatterns, configuration).length > 0,
   )
   return available ? (
-    <ActivePractice configuration={configuration} />
+    <ActivePractice configuration={configuration} restored={restored} />
   ) : (
     <Navigate to="/practice/setup" replace />
   )
@@ -194,7 +262,26 @@ function AdmittedPractice({
 
 export function PracticeSessionPage() {
   const { state, key }: { state: unknown; key: string } = useLocation()
-  if (!isPracticeConfiguration(state))
+  const { data } = useAppData()
+  const [restored] = useState(() => {
+    const snapshot = loadActiveSession()
+    const saved = data.sessions.find(
+      (session) => session.id === snapshot?.run.session.id,
+    )
+    // A failed recovery cleanup must not resurrect a finished or newer session.
+    return saved?.completedAt ||
+      (snapshot && saved && saved.attempted > snapshot.run.session.attempted)
+      ? null
+      : snapshot
+  })
+  const configuration = restored?.run.configuration ?? state
+  if (!isPracticeConfiguration(configuration))
     return <Navigate to="/practice/setup" replace />
-  return <AdmittedPractice key={key} configuration={state} />
+  return (
+    <AdmittedPractice
+      key={key}
+      configuration={configuration}
+      restored={restored}
+    />
+  )
 }

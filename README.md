@@ -29,9 +29,11 @@ Routes: `/`, `/practice/setup`, `/practice/session`, `/practice/summary`, `/stat
 
 Default practice choices are Addition, Beginner, and 10 questions. Sound is initially off; animations and explanations are on. Settings are saved with Save Settings. The in-session animation checkbox also saves the animation preference. Reduced-motion preferences always disable card animations.
 
-## Planned features
+## Session recovery (Phase 18)
 
-Navigation safety and restoring the current question after refresh are not implemented. Mistake review is disabled only when there are no active patterns. Completed answers are preserved, but refreshing the practice page starts a fresh run rather than resuming the current card.
+The active run, question, selected answer, and revealed side are saved in per-tab sessionStorage at `mathPractice.activeSession` (snapshot version 1). Refreshing restores the same card, progress, review patterns, and mastery goal. Completed attempts remain in localStorage and are deduplicated on restoration. Recovery clears when the session completes or is ended. Closing a tab may discard its sessionStorage. Invalid snapshots are ignored safely; unavailable recovery storage shows a warning while practice continues.
+
+The production app uses the React Router data router to protect active sessions during in-app navigation and browser Back/Forward. Cancel or Escape keeps practicing. End and Leave saves completed answers, excludes the unfinished card, and continues to the requested page. Same-page anchors remain usable. Refresh, closing the tab, and external navigation use the standard browser unload warning when supported. Browsers control its wording and may suppress it. Refresh restores the run rather than ending it.
 
 See `specifications.md` for the software specification and `TODO.md` for the implementation checklist.
 
@@ -70,7 +72,7 @@ Production hosting must serve `index.html` for application routes so direct link
 4. Test sound on/off, animations on/off, explanations on/off, and reduced-motion preferences. Sound is a short neutral tone when revealing an answer; a browser without audio support should still allow practice.
 5. Open Reset Statistics, cancel, and check history remains. On disposable test data, confirm the reset, then verify zero totals, empty recent sessions and mistake patterns, and unchanged settings. Test Clear All Application Data separately: after explicit confirmation it should restore defaults and return home.
 6. Use Tab/Shift+Tab and Enter/Space; confirmation dialogs initially focus Cancel, trap focus using native modal behavior, dismiss with Escape, and restore focus. Check 320px/mobile, tablet, and desktop widths and 200% zoom for overlap or horizontal scrolling.
-7. Try continuous practice and cancel/confirm End Session. Only completed attempts should count, including a zero-attempt session if you finish immediately. Refreshing mid-session preserves recorded attempts but does not restore the current card.
+7. Try continuous practice and cancel/confirm End Session. Only completed attempts should count, including a zero-attempt session if you finish immediately. Refreshing mid-session restores the current card, selected answer, and revealed side while preserving recorded attempts.
 8. Check the home links, Back/Forward, unknown-route recovery, visible focus, and Skip to content. Direct session/summary URLs without route data should return to setup.
 
 ## Manual mistake-review checks

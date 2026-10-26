@@ -16,6 +16,7 @@ import {
   applyMasteryThreshold,
   updateMistakePatterns,
 } from '../services/mistakeService'
+import { clearActiveSession } from '../services/activeSessionService'
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [loaded] = useState(() => loadData())
@@ -104,6 +105,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [commit],
   )
   const clearAllData = useCallback(() => {
+    if (!clearActiveSession()) {
+      setWarning(
+        'Your current question could not be erased. Check browser storage permissions and try again.',
+      )
+      return false
+    }
     const error = clearApplicationStorage()
     setWarning(error)
     if (error) return false
