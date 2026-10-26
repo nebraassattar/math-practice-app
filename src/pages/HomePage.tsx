@@ -43,8 +43,8 @@ export function HomePage() {
           </div>
         </div>
         <p className="development-note">
-          We're building this adventure! Practice, progress tracking, and
-          preferences are coming in later updates.
+          Ready to practice? Progress tracking and saved preferences are coming
+          in later updates.
         </p>
       </section>
     </>

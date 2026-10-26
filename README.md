@@ -4,16 +4,18 @@ A browser-based arithmetic practice application being built in phases for childr
 
 ## Current implementation
 
-- Phase 1: React, Vite, TypeScript, shared types, ESLint, Prettier, Vitest, and React Testing Library.
-- Phase 2: reusable page container, header, and navigation; a welcoming responsive home page; large navigation links; visible keyboard focus and a skip link.
-- Phase 3: operation, difficulty, and session-length selectors; validated navigation to a configuration preview. No practice session is started yet.
-- Phases 4–5: tested arithmetic generators for all operations and difficulty levels, with four unique, shuffled multiple-choice answers. These services are not connected to the practice UI yet.
-- React Router routes: `/`, `/practice/setup`, `/practice/session`, `/practice/summary`, `/statistics`, and `/settings`.
-- Clearly labeled placeholders for later features and a page-not-found fallback with a link home.
+- Phases 1–2: React, Vite, TypeScript, shared types, tests, linting, formatting, responsive layout, home page, navigation, and unknown-route fallback.
+- Phase 3: operation, difficulty, and session-length configuration with validation.
+- Phases 4–5: all four arithmetic generators, four difficulty levels, and four unique shuffled answer choices with operation-specific distractors.
+- Phases 6–8: answer selection, card reveal, self-reported results, fixed and continuous sessions, accessible progress, early ending with confirmation, and session summaries. Practice Again starts a fresh session with the same configuration; Change Settings returns to practice setup.
+- Card animations can be turned off during practice and respect reduced-motion preferences.
+- Completed attempts, totals, session IDs, and timestamps are held in memory for the current run. No practice history or application preferences are written to browser storage.
+
+Routes: `/`, `/practice/setup`, `/practice/session`, `/practice/summary`, `/statistics`, and `/settings`. Session and summary pages return to setup when required route data is missing or invalid. Statistics and settings are still placeholders.
 
 ## Planned features
 
-Interactive question cards, practice session flow, session results, statistics, settings, browser storage, and personalized mistake review are not implemented yet. Statistics, settings, and session summaries remain placeholders. The session route only displays the chosen configuration and redirects to setup when configuration is missing or invalid. Configuration is passed in router navigation state; no browser-storage persistence is implemented.
+Browser-storage persistence, saved statistics and settings, mistake tracking, personalized review, and mastery are not implemented. Practice Mistakes is shown disabled on the summary with an explanation. Navigation safety and restoring an active session after refresh come in later phases. Refreshing or leaving a session can lose in-progress attempts; route configuration alone is not a saved session.
 
 See `specifications.md` for the software specification and `TODO.md` for the phased implementation checklist.
 
@@ -34,21 +36,16 @@ Use Node.js 22.12 or later and npm. Install dependencies with `npm ci`.
 
 Production hosting must serve `index.html` for application routes so direct links and refreshes work with BrowserRouter.
 
-## Manual Phase 2 checks
+## Manual checks
 
-1. Open the home page and follow Start Practice, View Statistics, and Settings. Confirm Start Practice opens setup; statistics and settings remain labeled as coming soon.
-2. Open each route directly, refresh it, and use the browser Back and Forward controls.
-3. Open an unknown path and use Return Home.
-4. Use Tab and Shift+Tab to navigate, check visible focus, and use Enter to activate links. Check Skip to content moves focus to the main content.
-5. Resize to a 320px mobile width, tablet, and desktop; check readable text, wrapped navigation, and stacked action cards without horizontal scrolling. Check at 200% zoom.
-
-## Manual Phase 3 checks
-
-1. Open Start Practice. Confirm no operations or difficulty are selected, 10 questions is selected, and Start Session is disabled with an explanation.
-2. Select multiple operations, toggle one off, and use Select All. Choose a difficulty and each available length.
-3. Start Session and confirm the preview matches your chosen operations, difficulty, and length. No questions should appear.
-4. Open /practice/session directly in a new tab without configuration; confirm it returns to setup.
-5. Check the selectors with Tab, Space, and arrow keys. Check visible focus and selected controls at mobile widths and 200% zoom.
+1. Follow the home links and check unknown-route recovery, Back/Forward, visible keyboard focus, and Skip to content.
+2. Configure mixed operations, difficulty, and length. Confirm Start Session requires operations and difficulty and defaults to 10 questions.
+3. Start a 5-question session. Confirm Flip Card is disabled until selection, answers can change before revealing, and revealed choices cannot change. Record both right and wrong self-reports and verify progress and the summary totals.
+4. Check that the fifth self-report opens the summary. Confirm accuracy, operation/difficulty labels, zero review questions, and all available summary actions. Practice Again should start at question 1; Practice Mistakes should remain disabled with an explanation.
+5. Try continuous practice: no fixed progress bar, more questions keep appearing, and End Session opens confirmation. Cancel should keep your current card; confirming should summarize only completed attempts, including zero attempts if you end immediately.
+6. Toggle card animation off, and test reduced-motion system preferences. The answer should still appear immediately and stay readable.
+7. Check Tab/Shift+Tab and Enter/Space throughout the card flow. New questions and revealed answers receive focus. Resize to 320px, tablet, and desktop widths and check at 200% zoom for overlapping text or horizontal scrolling.
+8. Open session and summary routes directly in a new tab with no route data. Both should return to setup.
 
 ## Question generator decisions (Phases 4–5)
 
@@ -57,4 +54,4 @@ Production hosting must serve `index.html` for application routes so direct link
 - Division is generated from a nonzero divisor and integer quotient. Beginner uses divisors 1–5 and quotients 0–5; Easy uses 1–10 and 0–10. Intermediate uses divisors 1–12 and quotients 0–floor(144 / divisor), so dividends never exceed 144. Advanced uses divisors 1–99 and quotients 0–99, so dividends can reach 9,801. These quotient/Advanced bounds fill numeric limits left open by the specification.
 - Distractors use neighboring integers and common operation mistakes, including adjacent multiplication and division facts. Negative, fractional, duplicate, and correct-answer distractors are removed. Selection retries are capped at 12, with deterministic completion when draws repeat.
 - The main generator rejects invalid configuration, validates complete questions, and retries generation up to three times before returning a valid fixed question for an enabled operation and selected difficulty.
-- No question cards, running sessions, result tracking, persistence, or mistake review are implemented in this milestone. The browser still shows only the Phase 3 configuration preview.
+- Immediate repeated problems are avoided with five bounded draws and a deterministic alternate at the same difficulty when randomness repeats.

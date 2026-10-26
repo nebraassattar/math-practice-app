@@ -48,7 +48,6 @@ describe('App', () => {
   it.each([
     ['/practice/setup', 'Practice Setup'],
 
-    ['/practice/summary', 'Session Summary'],
     ['/statistics', 'Statistics'],
     ['/settings', 'Settings'],
   ])('supports direct navigation to %s', (path, heading) => {

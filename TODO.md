@@ -232,56 +232,56 @@ Initial routes:
 
 ### 20. Create the Answer Choice Component
 
-- [ ] Display a single answer choice as a button.
-- [ ] Support selected and unselected states.
-- [ ] Add hover and focus states.
-- [ ] Add a sufficiently large touch target.
-- [ ] Add an accessible label.
-- [ ] Prevent changes after the card has been flipped.
+- [x] Display a single answer choice as a button.
+- [x] Support selected and unselected states.
+- [x] Add hover and focus states.
+- [x] Add a sufficiently large touch target.
+- [x] Add an accessible label.
+- [x] Prevent changes after the card has been flipped.
 
 ### 21. Create the Front of the Question Card
 
-- [ ] Display the arithmetic question.
-- [ ] Display four answer choices.
-- [ ] Display the current question number.
-- [ ] Display the total number of questions.
-- [ ] Add a **Flip Card** button.
-- [ ] Disable the flip button until an answer is selected.
-- [ ] Use large, readable math text.
+- [x] Display the arithmetic question.
+- [x] Display four answer choices.
+- [x] Display the current question number.
+- [x] Display the total number of questions.
+- [x] Add a **Flip Card** button.
+- [x] Disable the flip button until an answer is selected.
+- [x] Use large, readable math text.
 
 ### 22. Add Answer Selection
 
-- [ ] Store the selected answer in component state.
-- [ ] Highlight the selected answer.
-- [ ] Allow the selected answer to be changed before flipping.
-- [ ] Enable the flip button after selection.
-- [ ] Reset the selected answer for each new question.
+- [x] Store the selected answer in component state.
+- [x] Highlight the selected answer.
+- [x] Allow the selected answer to be changed before flipping.
+- [x] Enable the flip button after selection.
+- [x] Reset the selected answer for each new question.
 
 ### 23. Create the Back of the Question Card
 
-- [ ] Display the original question.
-- [ ] Display the correct answer.
-- [ ] Display the student's selected answer.
-- [ ] Add an **I Got It Right** button.
-- [ ] Add an **I Got It Wrong** button.
-- [ ] Prevent both buttons from being selected for the same attempt.
+- [x] Display the original question.
+- [x] Display the correct answer.
+- [x] Display the student's selected answer.
+- [x] Add an **I Got It Right** button.
+- [x] Add an **I Got It Wrong** button.
+- [x] Prevent both buttons from being selected for the same attempt.
 
 ### 24. Add Basic Card-Flipping Behavior
 
-- [ ] Add an `isCardFlipped` state.
-- [ ] Show the front before flipping.
-- [ ] Show the back after flipping.
-- [ ] Prevent answer changes after flipping.
-- [ ] Reset the flip state for the next question.
-- [ ] Ensure the card works without animation.
+- [x] Add an `isCardFlipped` state.
+- [x] Show the front before flipping.
+- [x] Show the back after flipping.
+- [x] Prevent answer changes after flipping.
+- [x] Reset the flip state for the next question.
+- [x] Ensure the card works without animation.
 
 ### 25. Add the Card-Flip Animation
 
-- [ ] Add a CSS flip animation.
-- [ ] Keep the front and back aligned.
-- [ ] Prevent mirrored or unreadable card content.
-- [ ] Support reduced-motion preferences.
-- [ ] Add a setting for disabling animations.
+- [x] Add a CSS flip animation.
+- [x] Keep the front and back aligned.
+- [x] Prevent mirrored or unreadable card content.
+- [x] Support reduced-motion preferences.
+- [x] Add a setting for disabling animations.
 
 ---
 
@@ -289,54 +289,54 @@ Initial routes:
 
 ### 26. Create the Practice Session State
 
-- [ ] Store the session ID.
-- [ ] Store the selected operations.
-- [ ] Store the selected difficulty.
-- [ ] Store the selected session length.
-- [ ] Store the current question index.
-- [ ] Store session correct and incorrect totals.
-- [ ] Store whether the session is active.
+- [x] Store the session ID.
+- [x] Store the selected operations.
+- [x] Store the selected difficulty.
+- [x] Store the selected session length.
+- [x] Store the current question index.
+- [x] Store session correct and incorrect totals.
+- [x] Store whether the session is active.
 
 ### 27. Build the Practice Session Page
 
-- [ ] Read the setup configuration.
-- [ ] Generate the first question.
-- [ ] Display the question card.
-- [ ] Handle missing or invalid setup data.
-- [ ] Redirect to the setup page when no valid session exists.
+- [x] Read the setup configuration.
+- [x] Generate the first question.
+- [x] Display the question card.
+- [x] Handle missing or invalid setup data.
+- [x] Redirect to the setup page when no valid session exists.
 
 ### 28. Record Self-Reported Results
 
-- [ ] Handle the **I Got It Right** button.
-- [ ] Handle the **I Got It Wrong** button.
-- [ ] Increment the session-attempt total.
-- [ ] Increment the correct or incorrect total.
-- [ ] Prevent duplicate result recording.
-- [ ] Store the completed attempt.
+- [x] Handle the **I Got It Right** button.
+- [x] Handle the **I Got It Wrong** button.
+- [x] Increment the session-attempt total.
+- [x] Increment the correct or incorrect total.
+- [x] Prevent duplicate result recording.
+- [x] Store the completed attempt.
 
 ### 29. Advance to the Next Question
 
-- [ ] Generate a new question after recording a result.
-- [ ] Increment the question number.
-- [ ] Reset the selected answer.
-- [ ] Reset the card-flip state.
-- [ ] Avoid immediately repeating the same question.
-- [ ] Add an optional short transition.
+- [x] Generate a new question after recording a result.
+- [x] Increment the question number.
+- [x] Reset the selected answer.
+- [x] Reset the card-flip state.
+- [x] Avoid immediately repeating the same question.
+- [x] Add an optional short transition.
 
 ### 30. Add Session Progress
 
-- [ ] Display “Question X of Y.”
-- [ ] Add a visual progress bar.
-- [ ] Update progress after every attempt.
-- [ ] Hide fixed progress for continuous practice.
-- [ ] Ensure progress is accessible to screen readers.
+- [x] Display “Question X of Y.”
+- [x] Add a visual progress bar.
+- [x] Update progress after every attempt.
+- [x] Hide fixed progress for continuous practice.
+- [x] Ensure progress is accessible to screen readers.
 
 ### 31. Support Continuous Practice
 
-- [ ] Generate questions without a fixed endpoint.
-- [ ] Add an **End Session** button.
-- [ ] Confirm before ending when appropriate.
-- [ ] Generate a summary after the session ends.
+- [x] Generate questions without a fixed endpoint.
+- [x] Add an **End Session** button.
+- [x] Confirm before ending when appropriate.
+- [x] Generate a summary after the session ends.
 
 ---
 
@@ -344,28 +344,28 @@ Initial routes:
 
 ### 32. Detect Session Completion
 
-- [ ] Compare attempted questions with the selected session length.
-- [ ] Stop generating questions when the session is complete.
-- [ ] Save the completion timestamp.
-- [ ] Navigate to the summary page.
+- [x] Compare attempted questions with the selected session length.
+- [x] Stop generating questions when the session is complete.
+- [x] Save the completion timestamp.
+- [x] Navigate to the summary page.
 
 ### 33. Create the Session Summary Page
 
-- [ ] Display total questions attempted.
-- [ ] Display correct answers.
-- [ ] Display incorrect answers.
-- [ ] Calculate and display accuracy.
-- [ ] Display practiced operations.
-- [ ] Display the difficulty level.
-- [ ] Display mistake-review question count.
+- [x] Display total questions attempted.
+- [x] Display correct answers.
+- [x] Display incorrect answers.
+- [x] Calculate and display accuracy.
+- [x] Display practiced operations.
+- [x] Display the difficulty level.
+- [x] Display mistake-review question count.
 
 ### 34. Add Summary Actions
 
-- [ ] Add a **Practice Again** button.
-- [ ] Add a **Practice Mistakes** button.
-- [ ] Add a **Change Settings** button.
-- [ ] Add a **View Statistics** button.
-- [ ] Add a **Return Home** button.
+- [x] Add a **Practice Again** button.
+- [x] Add a **Practice Mistakes** button.
+- [x] Add a **Change Settings** button.
+- [x] Add a **View Statistics** button.
+- [x] Add a **Return Home** button.
 
 ---
 
